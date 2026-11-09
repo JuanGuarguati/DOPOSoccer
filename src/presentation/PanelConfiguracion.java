@@ -7,8 +7,11 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 /**
- * Pantalla de configuración del partido: modalidad, perfil de la máquina, resolución,
- * personaje de cada jugador y tipo de partido.
+ * JPanel: pantalla de configuración del partido (modalidad, perfil de la máquina,
+ * resolución, personaje de cada jugador y tipo de partido).
+ * Componentes Swing que usa:
+ * JLabel (título y etiquetas), JComboBox (listas de opciones),
+ * JTextField (minutos o goles), JButton (iniciar) y JPanel con TitledBorder (grupos).
  */
 public class PanelConfiguracion extends JPanel {
 
@@ -21,13 +24,21 @@ public class PanelConfiguracion extends JPanel {
     /** Tipos de partido que se pueden elegir. */
     public static final String[] TIPOS = {"Por tiempo (minutos)", "Por goles"};
 
+    /** JComboBox: modalidad de juego. */
     private JComboBox<String> comboModalidad;
+    /** JComboBox: perfil de la máquina (solo activo en jugador vs máquina). */
     private JComboBox<String> comboPerfil;
+    /** JComboBox: resolución de la cancha. */
     private JComboBox<String> comboResolucion;
+    /** JComboBox: personaje (país) del jugador 1. */
     private JComboBox<String> comboPais1;
+    /** JComboBox: personaje (país) del jugador 2. */
     private JComboBox<String> comboPais2;
+    /** JComboBox: tipo de partido (por tiempo o por goles). */
     private JComboBox<String> comboTipo;
+    /** JTextField: caja de texto para escribir los minutos o los goles. */
     private JTextField textoValor;
+    /** JButton: botón para iniciar el partido. */
     private JButton botonIniciar;
 
     /**
@@ -44,10 +55,12 @@ public class PanelConfiguracion extends JPanel {
     private void prepareView() {
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(20, 40, 20, 40));
+        // JLabel: título de la pantalla
         JLabel titulo = new JLabel("DOPOSoccer", SwingConstants.CENTER);
         titulo.setFont(new Font("SansSerif", Font.BOLD, 36));
         add(titulo, BorderLayout.NORTH);
 
+        // JComboBox y JTextField: opciones que elige el usuario
         comboModalidad = new JComboBox<>(MODALIDADES);
         comboPerfil = new JComboBox<>(PERFILES);
         comboPerfil.setEnabled(false);
@@ -59,7 +72,9 @@ public class PanelConfiguracion extends JPanel {
         comboTipo = new JComboBox<>(TIPOS);
         textoValor = new JTextField("2");
 
+        // JPanel centro: contiene los dos grupos lado a lado
         JPanel centro = new JPanel(new GridLayout(1, 2, 20, 0));
+        // JPanel con TitledBorder: grupo "Juego"
         JPanel juego = new JPanel(new GridLayout(4, 2, 10, 10));
         juego.setBorder(new TitledBorder("Juego"));
         juego.add(new JLabel("Modalidad:"));
@@ -71,6 +86,7 @@ public class PanelConfiguracion extends JPanel {
         juego.add(new JLabel("Tipo de partido:"));
         juego.add(comboTipo);
 
+        // JPanel con TitledBorder: grupo "Jugadores"
         JPanel jugadores = new JPanel(new GridLayout(4, 2, 10, 10));
         jugadores.setBorder(new TitledBorder("Jugadores"));
         jugadores.add(new JLabel("Personaje jugador 1:"));
@@ -86,13 +102,15 @@ public class PanelConfiguracion extends JPanel {
         centro.add(jugadores);
         add(centro, BorderLayout.CENTER);
 
+        // JButton: la ventana principal (JFrame) le asigna la acción
         botonIniciar = new JButton("Iniciar partido");
         botonIniciar.setFont(new Font("SansSerif", Font.BOLD, 18));
         add(botonIniciar, BorderLayout.SOUTH);
     }
 
     /**
-     * Habilita el perfil de la máquina solo cuando se elige jugador vs máquina.
+     * Oyente (ActionListener) del JComboBox de modalidad: habilita el perfil
+     * de la máquina solo cuando se elige jugador vs máquina.
      */
     private void prepareController() {
         comboModalidad.addActionListener(new ActionListener() {
@@ -104,14 +122,14 @@ public class PanelConfiguracion extends JPanel {
     }
 
     /**
-     * Activa o desactiva el combo de perfil según la modalidad.
+     * Activa o desactiva el JComboBox de perfil según la modalidad.
      */
     private void comboModalidadAction() {
         comboPerfil.setEnabled(esContraMaquina());
     }
 
     /**
-     * @return botón para iniciar el partido (la ventana principal le asigna la acción)
+     * @return JButton para iniciar el partido (la ventana principal le asigna la acción)
      */
     public JButton getBotonIniciar() { return botonIniciar; }
 
@@ -138,7 +156,7 @@ public class PanelConfiguracion extends JPanel {
     }
 
     /**
-     * @return texto escrito en minutos o goles
+     * @return texto escrito en el JTextField de minutos o goles
      */
     public String getValor() { return textoValor.getText().trim(); }
 

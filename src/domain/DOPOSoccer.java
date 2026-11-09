@@ -14,16 +14,18 @@ public class DOPOSoccer {
     public static final String[] PAISES = {CoreaDelSur.PAIS, Camerun.PAIS, Nigeria.PAIS, EstadosUnidos.PAIS};
 
     private Partido partido;
+    private int[] puntos;
 
     /**
-     * Crea el juego sin ningún partido en curso.
+     * Crea el juego sin ningún partido en curso y con los dos jugadores en 0 puntos.
      */
     public DOPOSoccer() {
         partido = null;
+        puntos = new int[] {0, 0};
     }
 
     /**
-     * Inicia un partido nuevo.
+     * Inicia un partido nuevo. Los jugadores conservan los puntos que ganaron en los partidos anteriores.
      * @param pais1 país del jugador 1
      * @param pais2 país del jugador 2
      * @param tipo "tiempo" o "goles"
@@ -32,13 +34,30 @@ public class DOPOSoccer {
      */
     public void iniciarPartido(String pais1, String pais2, String tipo, int valor) throws DOPOSoccerException {
         if (valor <= 0) throw new DOPOSoccerException(DOPOSoccerException.VALOR_INVALIDO);
+        Partido nuevo;
         if (POR_TIEMPO.equals(tipo)) {
-            partido = new PartidoPorTiempo(pais1, pais2, valor);
+            nuevo = new PartidoPorTiempo(pais1, pais2, valor);
         } else if (POR_GOLES.equals(tipo)) {
-            partido = new PartidoPorGoles(pais1, pais2, valor);
+            nuevo = new PartidoPorGoles(pais1, pais2, valor);
         } else {
             throw new DOPOSoccerException(DOPOSoccerException.VALOR_INVALIDO);
         }
+        guardarPuntos();
+        nuevo.getJugador(1).sumarPuntos(puntos[0]);
+        nuevo.getJugador(2).sumarPuntos(puntos[1]);
+        partido = nuevo;
+    }
+
+    /**
+     * Retorna los puntos acumulados de un jugador en todos los partidos jugados.
+     * @param numero número del jugador (1 o 2)
+     * @return puntos acumulados
+     * @throws DOPOSoccerException si el número no es 1 ni 2
+     */
+    public int getPuntos(int numero) throws DOPOSoccerException {
+        if (numero != 1 && numero != 2) throw new DOPOSoccerException(DOPOSoccerException.JUGADOR_INVALIDO);
+        if (partido != null) return partido.getJugador(numero).getPuntos();
+        return puntos[numero - 1];
     }
 
     /**
@@ -103,6 +122,17 @@ public class DOPOSoccer {
      */
     public Partido getPartido() {
         return partido;
+    }
+
+    /**
+     * Guarda los puntos que tienen los jugadores del partido actual para pasarlos al siguiente.
+     * @throws DOPOSoccerException si no se puede leer un jugador
+     */
+    private void guardarPuntos() throws DOPOSoccerException {
+        if (partido != null) {
+            puntos[0] = partido.getJugador(1).getPuntos();
+            puntos[1] = partido.getJugador(2).getPuntos();
+        }
     }
 
     /**

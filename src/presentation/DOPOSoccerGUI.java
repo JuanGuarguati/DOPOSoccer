@@ -8,10 +8,18 @@ import java.util.Set;
 import javax.swing.*;
 
 /**
- * Ventana principal de DOPOSoccer (MVC: modelo = DOPOSoccer, vista = paneles, controlador = oyentes).
- * Muestra la configuración y luego la cancha. Controles:
- * jugador 1 A/D mover, W saltar, S patear; jugador 2 flechas, arriba saltar, abajo patear;
- * P pausa, Esc terminar.
+ * JFrame: ventana principal de DOPOSoccer (es el gran componente que contiene todo).
+ * MVC: modelo = DOPOSoccer (dominio), vista = los paneles, controlador = los oyentes.
+ *
+ * Organización de componentes:
+ *   JFrame (esta clase)
+ *     JMenuBar  con JMenu "Archivo" y JMenu "Juego" (cada opción es un JMenuItem)
+ *     JPanel principal con CardLayout, que muestra una de dos tarjetas:
+ *       PanelConfiguracion (JPanel) para preparar el partido
+ *       PanelCancha (JPanel) donde se juega; adentro tiene el PanelPausa (JPanel)
+ *
+ * Controles: jugador 1 A/D mover, W saltar, S patear; jugador 2 flechas, arriba saltar,
+ * abajo patear; P pausa, Esc terminar.
  */
 public class DOPOSoccerGUI extends JFrame {
 
@@ -22,18 +30,31 @@ public class DOPOSoccerGUI extends JFrame {
     /** Milisegundos entre cada ciclo del juego. */
     public static final int MILISEGUNDOS = 16;
 
+    /** Modelo: fachada del dominio. */
     private DOPOSoccer dominio;
+    /** Estilo (layout) del panel principal: muestra una tarjeta a la vez. */
     private CardLayout tarjetas;
+    /** JPanel contenedor principal: guarda las dos tarjetas (configuración y cancha). */
     private JPanel principal;
+    /** JPanel de la pantalla de configuración. */
     private PanelConfiguracion panelConfiguracion;
+    /** JPanel de la pantalla de juego. */
     private PanelCancha panelCancha;
+    /** Timer de Swing: cada MILISEGUNDOS ejecuta un ciclo del juego. */
     private Timer timer;
+    /** Teclas de movimiento que están presionadas en este momento. */
     private Set<Integer> teclasPresionadas;
+    /** JMenuItem del menú Archivo: vuelve a la configuración para un partido nuevo. */
     private JMenuItem itemNuevo;
+    /** JMenuItem del menú Archivo: abrir partida (versión dos). */
     private JMenuItem itemAbrir;
+    /** JMenuItem del menú Archivo: guardar partida (versión dos). */
     private JMenuItem itemGuardar;
+    /** JMenuItem del menú Juego: pausa o reanuda el partido. */
     private JMenuItem itemPausa;
+    /** JMenuItem del menú Juego: termina el partido. */
     private JMenuItem itemTerminar;
+    /** JMenuItem del menú Archivo: cierra la aplicación. */
     private JMenuItem itemSalir;
 
     /**
@@ -50,25 +71,25 @@ public class DOPOSoccerGUI extends JFrame {
      * Arma la vista: menú, pantalla de configuración y pantalla de cancha.
      */
     private void prepareView() {
-        setTitle("DOPOSoccer");
+        setTitle("DOPOSoccer");                 // título del JFrame
         prepareViewMenu();
         tarjetas = new CardLayout();
-        principal = new JPanel(tarjetas);
+        principal = new JPanel(tarjetas);       // JPanel contenedor con CardLayout
         panelConfiguracion = new PanelConfiguracion();
         panelCancha = new PanelCancha(dominio);
-        principal.add(panelConfiguracion, CONFIGURACION);
-        principal.add(panelCancha, CANCHA);
-        add(principal);
+        principal.add(panelConfiguracion, CONFIGURACION);   // tarjeta 1
+        principal.add(panelCancha, CANCHA);                 // tarjeta 2
+        add(principal);                                     // el JPanel va dentro del JFrame
         setSize(900, 500);
         setLocationRelativeTo(null);
     }
 
     /**
-     * Arma el menú Archivo y Juego.
+     * Arma la barra de menú: JMenuBar con dos JMenu (Archivo y Juego) y sus JMenuItem.
      */
     private void prepareViewMenu() {
-        JMenuBar barra = new JMenuBar();
-        JMenu archivo = new JMenu("Archivo");
+        JMenuBar barra = new JMenuBar();            // JMenuBar: barra de menú del JFrame
+        JMenu archivo = new JMenu("Archivo");       // JMenu: contenedor de opciones
         itemNuevo = new JMenuItem("Nuevo partido");
         itemAbrir = new JMenuItem("Abrir partida");
         itemGuardar = new JMenuItem("Guardar partida");
@@ -78,18 +99,19 @@ public class DOPOSoccerGUI extends JFrame {
         archivo.add(itemGuardar);
         archivo.addSeparator();
         archivo.add(itemSalir);
-        JMenu juego = new JMenu("Juego");
+        JMenu juego = new JMenu("Juego");           // JMenu: contenedor de opciones
         itemPausa = new JMenuItem("Pausar / continuar (P)");
         itemTerminar = new JMenuItem("Terminar partido (Esc)");
         juego.add(itemPausa);
         juego.add(itemTerminar);
         barra.add(archivo);
         barra.add(juego);
-        setJMenuBar(barra);
+        setJMenuBar(barra);                         // se pone la barra en el JFrame
     }
 
     /**
-     * Asigna los oyentes: ventana, menú, botón iniciar, teclado y timer del juego.
+     * Controlador: asigna los oyentes (listeners) a la ventana, al menú, a los botones,
+     * al teclado y al timer del juego.
      */
     private void prepareController() {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -131,6 +153,7 @@ public class DOPOSoccerGUI extends JFrame {
                 terminarAction();
             }
         });
+        prepareControllerPausa();
         panelConfiguracion.getBotonIniciar().addActionListener(new ActionListener() {
             /** Atiende el botón Iniciar. */
             public void actionPerformed(ActionEvent e) {
@@ -147,12 +170,54 @@ public class DOPOSoccerGUI extends JFrame {
                 teclasPresionadas.remove(e.getKeyCode());
             }
         });
+        // Timer de Swing: genera un evento cada MILISEGUNDOS para mover el juego
         timer = new Timer(MILISEGUNDOS, new ActionListener() {
             /** Ejecuta un ciclo del juego en cada tic del timer. */
             public void actionPerformed(ActionEvent e) {
                 cicloAction();
             }
         });
+    }
+
+    /**
+     * Asigna los oyentes del JButton de pausa y de los JButton del menú de pausa.
+     */
+    private void prepareControllerPausa() {
+        PanelPausa pausa = panelCancha.getPanelPausa();
+        ActionListener pausar = new ActionListener() {
+            /** Atiende el botón de pausa y el botón Continuar. */
+            public void actionPerformed(ActionEvent e) {
+                pausaAction();
+            }
+        };
+        panelCancha.getBotonPausa().addActionListener(pausar);
+        pausa.getBotonContinuar().addActionListener(pausar);
+        pausa.getBotonTerminar().addActionListener(new ActionListener() {
+            /** Atiende el botón Terminar partido. */
+            public void actionPerformed(ActionEvent e) {
+                terminarAction();
+            }
+        });
+        pausa.getBotonGuardar().addActionListener(new ActionListener() {
+            /** Atiende el botón Guardar partida, que llega en la versión dos. */
+            public void actionPerformed(ActionEvent e) {
+                proximamenteAction();
+            }
+        });
+        pausa.getBotonMenu().addActionListener(new ActionListener() {
+            /** Atiende el botón Volver al menú. */
+            public void actionPerformed(ActionEvent e) {
+                volverMenuAction();
+            }
+        });
+        ActionListener sonido = new ActionListener() {
+            /** Atiende los botones Sonido y Música, que llegan en la versión dos. */
+            public void actionPerformed(ActionEvent e) {
+                sonidoAction();
+            }
+        };
+        pausa.getBotonSonido().addActionListener(sonido);
+        pausa.getBotonMusica().addActionListener(sonido);
     }
 
     /**
@@ -170,6 +235,7 @@ public class DOPOSoccerGUI extends JFrame {
                 panelConfiguracion.getTipo(), valor);
             Dimension resolucion = panelConfiguracion.getResolucion();
             panelCancha.setPreferredSize(resolucion);
+            panelCancha.mostrarPausa(false);
             tarjetas.show(principal, CANCHA);
             pack();
             setLocationRelativeTo(null);
@@ -229,21 +295,30 @@ public class DOPOSoccerGUI extends JFrame {
     }
 
     /**
-     * Muestra el ganador y los puntos obtenidos, y vuelve a la configuración.
+     * Muestra el ganador, el marcador, los puntos obtenidos en este partido y los puntos
+     * acumulados de cada jugador. Luego vuelve a la configuración.
      */
     private void finAction() {
         timer.stop();
+        panelCancha.mostrarPausa(false);
         try {
             Partido p = dominio.getPartido();
+            Jugador j1 = p.getJugador(1);
+            Jugador j2 = p.getJugador(2);
             Jugador ganador = p.getGanador();
+            String marcador = "Marcador: " + j1.getGoles() + " - " + j2.getGoles() + "\n";
             String mensaje;
             if (ganador == null) {
-                mensaje = "Partido terminado en empate " + p.getJugador(1).getGoles() + " - " + p.getJugador(2).getGoles() + ".";
+                mensaje = "EMPATE\n" + marcador + "No se otorgan puntos.\n";
             } else {
+                Jugador perdedor = ganador == j1 ? j2 : j1;
                 mensaje = "¡Ganó el jugador " + ganador.getNumero() + " (" + ganador.getPersonaje().getPais() + ")!\n"
-                    + "Marcador: " + p.getJugador(1).getGoles() + " - " + p.getJugador(2).getGoles() + "\n"
-                    + "Puntos: jugador 1 = " + p.getJugador(1).getPuntos() + ", jugador 2 = " + p.getJugador(2).getPuntos();
+                    + marcador
+                    + "Puntos obtenidos: jugador " + ganador.getNumero() + " +" + Partido.PUNTOS_GANADOR
+                    + ", jugador " + perdedor.getNumero() + " +" + Partido.PUNTOS_PERDEDOR + "\n";
             }
+            mensaje += "Puntos acumulados: jugador 1 = " + dominio.getPuntos(1)
+                + ", jugador 2 = " + dominio.getPuntos(2);
             JOptionPane.showMessageDialog(this, mensaje, "Fin del partido", JOptionPane.INFORMATION_MESSAGE);
         } catch (DOPOSoccerException e) {
             Log.record(e);
@@ -257,7 +332,7 @@ public class DOPOSoccerGUI extends JFrame {
     private void pausaAction() {
         try {
             dominio.pausar();
-            panelCancha.repaint();
+            panelCancha.mostrarPausa(dominio.getPartido().estaPausado());
         } catch (DOPOSoccerException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -286,9 +361,28 @@ public class DOPOSoccerGUI extends JFrame {
      */
     private void nuevoAction() {
         timer.stop();
+        panelCancha.mostrarPausa(false);
         tarjetas.show(principal, CONFIGURACION);
         setSize(900, 500);
         setLocationRelativeTo(null);
+    }
+
+    /**
+     * Abandona el partido actual (sin dar puntos) y vuelve a la configuración, después de confirmar.
+     */
+    private void volverMenuAction() {
+        int opcion = JOptionPane.showConfirmDialog(this,
+            "¿Desea volver al menú? El partido actual se perderá y no se darán puntos.", "Volver al menú",
+            JOptionPane.YES_NO_OPTION);
+        if (opcion == JOptionPane.YES_OPTION) nuevoAction();
+    }
+
+    /**
+     * Informa que el sonido y la música llegan en la versión dos.
+     */
+    private void sonidoAction() {
+        JOptionPane.showMessageDialog(this, "El sonido y la música estarán disponibles en la versión dos.",
+            "DOPOSoccer", JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**

@@ -125,4 +125,48 @@ public class PartidoTest {
     public void deberiaLanzarExcepcionSinPartido() throws DOPOSoccerException {
         new DOPOSoccer().patearJugador(1);
     }
+
+    /**
+     * En pausa los jugadores no se mueven, no saltan y no patean (el rival no pierde vida).
+     */
+    @Test
+    public void noDeberiaPermitirAccionesEnPausa() throws DOPOSoccerException {
+        Partido p = new PartidoPorTiempo(Camerun.PAIS, Nigeria.PAIS, 2);
+        Jugador j1 = p.getJugador(1);
+        Jugador j2 = p.getJugador(2);
+        while (j2.getX() - j1.getX() > 60) p.moverJugador(2, "izquierda");
+        assertTrue(j1.alcanzaRival(j2));
+        double x = j1.getX();
+        double y = j1.getY();
+        double vida = j2.getVida();
+        p.pausar();
+        p.moverJugador(1, "derecha");
+        p.saltarJugador(1);
+        p.patearJugador(1);
+        p.pausar();
+        p.actualizar(0.016);
+        assertEquals(x, j1.getX(), 0.001);
+        assertEquals(y, j1.getY(), 0.001);
+        assertEquals(vida, j2.getVida(), 0.001);
+    }
+
+    /**
+     * Los puntos de los jugadores se mantienen de un partido al siguiente.
+     */
+    @Test
+    public void deberiaMantenerPuntosEntrePartidos() throws DOPOSoccerException {
+        DOPOSoccer juego = new DOPOSoccer();
+        juego.iniciarPartido(CoreaDelSur.PAIS, Camerun.PAIS, DOPOSoccer.POR_GOLES, 1);
+        juego.getPartido().getJugador(2).anotarGol();
+        juego.actualizar(0.016);
+        assertEquals(25, juego.getPuntos(1));
+        assertEquals(100, juego.getPuntos(2));
+        juego.iniciarPartido(Nigeria.PAIS, EstadosUnidos.PAIS, DOPOSoccer.POR_GOLES, 1);
+        assertEquals(25, juego.getPuntos(1));
+        assertEquals(100, juego.getPuntos(2));
+        juego.getPartido().getJugador(1).anotarGol();
+        juego.actualizar(0.016);
+        assertEquals(125, juego.getPuntos(1));
+        assertEquals(125, juego.getPuntos(2));
+    }
 }

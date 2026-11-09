@@ -62,13 +62,14 @@ public abstract class Partido {
     }
 
     /**
-     * Mueve un jugador a la izquierda o a la derecha.
+     * Mueve un jugador a la izquierda o a la derecha. No hace nada si el partido está en pausa.
      * @param numero número del jugador (1 o 2)
      * @param direccion "izquierda" o "derecha"
      * @throws DOPOSoccerException si el número o la dirección no son válidos
      */
     public void moverJugador(int numero, String direccion) throws DOPOSoccerException {
         Jugador j = getJugador(numero);
+        if (pausado) return;
         if ("izquierda".equals(direccion)) {
             j.moverIzquierda();
         } else if ("derecha".equals(direccion)) {
@@ -79,22 +80,25 @@ public abstract class Partido {
     }
 
     /**
-     * Hace saltar a un jugador.
+     * Hace saltar a un jugador. No hace nada si el partido está en pausa.
      * @param numero número del jugador (1 o 2)
      * @throws DOPOSoccerException si el número no es válido
      */
     public void saltarJugador(int numero) throws DOPOSoccerException {
-        getJugador(numero).saltar();
+        Jugador j = getJugador(numero);
+        if (pausado) return;
+        j.saltar();
     }
 
     /**
-     * Hace patear a un jugador contra el balón o el rival.
+     * Hace patear a un jugador contra el balón o el rival. No hace nada si el partido está en pausa.
      * @param numero número del jugador (1 o 2)
      * @throws DOPOSoccerException si el número no es válido
      */
     public void patearJugador(int numero) throws DOPOSoccerException {
         Jugador j = getJugador(numero);
         Jugador rival = getJugador(3 - numero);
+        if (pausado) return;
         j.patear(balon, rival);
     }
 

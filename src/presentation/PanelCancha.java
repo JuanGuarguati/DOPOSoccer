@@ -3,11 +3,15 @@ package presentation;
 import domain.*;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.*;
 
 /**
- * Dibuja la cancha, los arcos, el balón, los jugadores y el estado del juego
+ * JPanel: dibuja la cancha, los arcos, el balón, los jugadores y el estado del juego
  * (tiempo, marcador, vida y barra de poder de cada jugador).
  * Las medidas del dominio se escalan a la resolución elegida.
+ * Componentes Swing que contiene:
+ * JButton de pausa (arriba a la derecha) y PanelPausa (JPanel con el menú de pausa).
+ * Recibe el teclado (KeyListener) que le asigna la ventana principal.
  */
 public class PanelCancha extends JPanel {
 
@@ -20,7 +24,12 @@ public class PanelCancha extends JPanel {
     /** Color del jugador 2. */
     public static final Color COLOR_J2 = new Color(220, 50, 50);
 
+    /** Fachada del dominio de donde se lee el estado del partido. */
     private DOPOSoccer dominio;
+    /** JButton: botón "II" para pausar el partido. */
+    private JButton botonPausa;
+    /** JPanel: menú de pausa que aparece encima de la cancha. */
+    private PanelPausa panelPausa;
 
     /**
      * Crea el panel de la cancha.
@@ -30,11 +39,60 @@ public class PanelCancha extends JPanel {
         this.dominio = dominio;
         setFocusable(true);
         setBackground(CIELO);
+        prepareView();
     }
 
     /**
-     * Dibuja todo el estado del partido.
-     * @param g contexto gráfico
+     * Ubica el botón de pausa arriba a la derecha (debajo de la información del jugador 2)
+     * y el menú de pausa en el centro, oculto hasta que se pause el partido.
+     */
+    private void prepareView() {
+        setLayout(new BorderLayout());
+        // JButton de pausa: no toma el foco para que el teclado siga en la cancha
+        botonPausa = new JButton("II");
+        botonPausa.setFont(new Font("SansSerif", Font.BOLD, 16));
+        botonPausa.setFocusable(false);
+        botonPausa.setToolTipText("Pausar (P)");
+        // JPanel transparente arriba (NORTH) que ubica el botón a la derecha
+        JPanel arriba = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        arriba.setOpaque(false);
+        arriba.setBorder(new EmptyBorder(70, 0, 0, 15));
+        arriba.add(botonPausa);
+        add(arriba, BorderLayout.NORTH);
+        // PanelPausa (JPanel): oculto hasta que se pause
+        panelPausa = new PanelPausa();
+        panelPausa.setVisible(false);
+        // JPanel transparente en el centro (GridBagLayout) para centrar el menú
+        JPanel centro = new JPanel(new GridBagLayout());
+        centro.setOpaque(false);
+        centro.add(panelPausa);
+        add(centro, BorderLayout.CENTER);
+    }
+
+    /**
+     * Muestra u oculta el menú de pausa (y oculta el JButton de pausa mientras se ve el menú).
+     * @param visible true para mostrarlo
+     */
+    public void mostrarPausa(boolean visible) {
+        panelPausa.setVisible(visible);
+        botonPausa.setVisible(!visible);
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * @return JButton de pausa de la pantalla
+     */
+    public JButton getBotonPausa() { return botonPausa; }
+
+    /**
+     * @return menú de pausa (JPanel)
+     */
+    public PanelPausa getPanelPausa() { return panelPausa; }
+
+    /**
+     * Dibuja todo el estado del partido. Swing lo llama cada vez que se hace repaint().
+     * @param g contexto gráfico (Graphics)
      */
     @Override
     protected void paintComponent(Graphics g) {
@@ -96,32 +154,79 @@ public class PanelCancha extends JPanel {
     }
 
     /**
-     * Dibuja un jugador: cabeza grande, ojo hacia donde mira, cuerpo y nombre del país.
+     * Dibuja un jugador. Cada país se ve distinto (colores de su bandera):
+     * cabeza, banda en la frente y cuerpo. Estados Unidos lleva el cuerpo a rayas.
+     * Para saber quién es quién, la cabeza tiene un borde del color del jugador
+     * (azul J1, rojo J2) y encima se escribe "J1" o "J2" con el país.
      * Si está aturdido se dibuja gris con estrellas.
      * @param g contexto gráfico
      * @param j jugador
-     * @param color color del jugador
+     * @param color color del jugador (borde y etiqueta)
      */
     private void dibujarJugador(Graphics2D g, Jugador j, Color color) {
         int r = j.getRadio();
         int x = (int) j.getX();
         int y = (int) j.getY();
-        Color c = j.estaAturdido() ? Color.GRAY : color;
-        g.setColor(c.darker());
-        g.fillRect(x - r / 2, y + r - 5, r, r + 5);
-        g.setColor(c);
-        g.fillOval(x - r, y - r, 2 * r, 2 * r);
-        g.setColor(Color.WHITE);
-        int ojo = j.estaMirandoDerecha() ? x + r / 3 : x - r / 3 - 10;
-        g.fillOval(ojo, y - 8, 10, 10);
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("SansSerif", Font.BOLD, 12));
         String pais = j.getPersonaje().getPais();
-        g.drawString(pais, x - g.getFontMetrics().stringWidth(pais) / 2, y - r - 8);
-        if (j.estaAturdido()) {
+        Color[] colores = coloresPais(pais);
+        boolean aturdido = j.estaAturdido();
+        Color cabeza = aturdido ? Color.LIGHT_GRAY : colores[0];
+        Color banda = aturdido ? Color.GRAY : colores[1];
+        Color cuerpo = aturdido ? Color.GRAY : colores[2];
+        // cuerpo
+        g.setColor(cuerpo);
+        g.fillRect(x - r / 2, y + r - 5, r, r + 5);
+        if (!aturdido && pais.equals(EstadosUnidos.PAIS)) {
+            g.setColor(Color.WHITE);
+            for (int franja = y + r; franja < y + 2 * r; franja += 8) {
+                g.fillRect(x - r / 2, franja, r, 4);
+            }
+        }
+        g.setColor(Color.BLACK);
+        g.drawRect(x - r / 2, y + r - 5, r, r + 5);
+        // cabeza con la banda en la frente
+        g.setColor(cabeza);
+        g.fillOval(x - r, y - r, 2 * r, 2 * r);
+        Shape antes = g.getClip();
+        g.clipRect(x - r, y - r, 2 * r, 2 * r);
+        g.clip(new java.awt.geom.Ellipse2D.Double(x - r, y - r, 2 * r, 2 * r));
+        g.setColor(banda);
+        g.fillRect(x - r, y - r / 2, 2 * r, r / 3);
+        g.setClip(antes);
+        // borde del color del jugador
+        g.setStroke(new BasicStroke(4));
+        g.setColor(aturdido ? Color.GRAY : color);
+        g.drawOval(x - r, y - r, 2 * r, 2 * r);
+        g.setStroke(new BasicStroke(1));
+        // ojo hacia donde mira
+        int ojo = j.estaMirandoDerecha() ? x + r / 3 : x - r / 3 - 10;
+        g.setColor(Color.WHITE);
+        g.fillOval(ojo, y - 4, 12, 12);
+        g.setColor(Color.BLACK);
+        g.drawOval(ojo, y - 4, 12, 12);
+        g.fillOval(ojo + (j.estaMirandoDerecha() ? 6 : 1), y, 5, 5);
+        // etiqueta: J1/J2 y país
+        g.setFont(new Font("SansSerif", Font.BOLD, 13));
+        String etiqueta = "J" + j.getNumero() + " · " + pais;
+        g.setColor(color);
+        g.drawString(etiqueta, x - g.getFontMetrics().stringWidth(etiqueta) / 2, y - r - 8);
+        if (aturdido) {
             g.setColor(Color.YELLOW);
             g.drawString("* * *", x - 15, y - r - 22);
         }
+    }
+
+    /**
+     * Colores de cada país, tomados de su bandera.
+     * @param pais nombre del país
+     * @return arreglo {cabeza, banda, cuerpo}
+     */
+    private Color[] coloresPais(String pais) {
+        if (pais.equals(CoreaDelSur.PAIS)) return new Color[] {Color.WHITE, new Color(205, 46, 58), new Color(0, 71, 160)};
+        if (pais.equals(Camerun.PAIS)) return new Color[] {new Color(0, 122, 94), new Color(252, 209, 22), new Color(206, 17, 38)};
+        if (pais.equals(Nigeria.PAIS)) return new Color[] {Color.WHITE, new Color(0, 135, 81), new Color(0, 135, 81)};
+        if (pais.equals(EstadosUnidos.PAIS)) return new Color[] {new Color(60, 59, 110), Color.WHITE, new Color(178, 34, 52)};
+        return new Color[] {Color.LIGHT_GRAY, Color.GRAY, Color.DARK_GRAY};
     }
 
     /**
@@ -147,11 +252,9 @@ public class PanelCancha extends JPanel {
         dibujarInfoJugador(g, j1, 20, COLOR_J1);
         dibujarInfoJugador(g, j2, cancha.getAncho() - 240, COLOR_J2);
         if (partido.estaPausado()) {
+            // Se oscurece la cancha pero no el marcador, para que el estado siga a la vista.
             g.setColor(new Color(0, 0, 0, 120));
-            g.fillRect(0, 0, cancha.getAncho(), cancha.getAlto());
-            g.setColor(Color.WHITE);
-            g.setFont(new Font("SansSerif", Font.BOLD, 48));
-            g.drawString("PAUSA", centro - 80, cancha.getAlto() / 2);
+            g.fillRect(0, 70, cancha.getAncho(), cancha.getAlto() - 70);
         }
     }
 
