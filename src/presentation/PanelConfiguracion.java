@@ -8,10 +8,10 @@ import javax.swing.border.*;
 
 /**
  * JPanel: pantalla de configuración del partido (modalidad, perfil de la máquina,
- * resolución, personaje de cada jugador y tipo de partido).
+ * resolución, tipo de partido y minutos o goles). Los países se eligen después, en PanelJugadores.
  * Componentes Swing que usa:
  * JLabel (título y etiquetas), JComboBox (listas de opciones),
- * JTextField (minutos o goles), JButton (iniciar) y JPanel con TitledBorder (grupos).
+ * JTextField (minutos o goles), JButton (siguiente) y JPanel con TitledBorder (grupos).
  */
 public class PanelConfiguracion extends JPanel {
 
@@ -30,16 +30,12 @@ public class PanelConfiguracion extends JPanel {
     private JComboBox<String> comboPerfil;
     /** JComboBox: resolución de la cancha. */
     private JComboBox<String> comboResolucion;
-    /** JComboBox: personaje (país) del jugador 1. */
-    private JComboBox<String> comboPais1;
-    /** JComboBox: personaje (país) del jugador 2. */
-    private JComboBox<String> comboPais2;
     /** JComboBox: tipo de partido (por tiempo o por goles). */
     private JComboBox<String> comboTipo;
     /** JTextField: caja de texto para escribir los minutos o los goles. */
     private JTextField textoValor;
-    /** JButton: botón para iniciar el partido. */
-    private JButton botonIniciar;
+    /** JButton: botón para pasar a la pantalla de jugadores. */
+    private JButton botonSiguiente;
 
     /**
      * Crea la pantalla de configuración.
@@ -66,9 +62,6 @@ public class PanelConfiguracion extends JPanel {
         comboPerfil.setEnabled(false);
         comboResolucion = new JComboBox<>(RESOLUCIONES);
         comboResolucion.setSelectedIndex(0);
-        comboPais1 = new JComboBox<>(DOPOSoccer.PAISES);
-        comboPais2 = new JComboBox<>(DOPOSoccer.PAISES);
-        comboPais2.setSelectedIndex(1);
         comboTipo = new JComboBox<>(TIPOS);
         textoValor = new JTextField("2");
 
@@ -86,26 +79,22 @@ public class PanelConfiguracion extends JPanel {
         juego.add(new JLabel("Tipo de partido:"));
         juego.add(comboTipo);
 
-        // JPanel con TitledBorder: grupo "Jugadores"
-        JPanel jugadores = new JPanel(new GridLayout(4, 2, 10, 10));
-        jugadores.setBorder(new TitledBorder("Jugadores"));
-        jugadores.add(new JLabel("Personaje jugador 1:"));
-        jugadores.add(comboPais1);
-        jugadores.add(new JLabel("Personaje jugador 2:"));
-        jugadores.add(comboPais2);
-        jugadores.add(new JLabel("Minutos o goles:"));
-        jugadores.add(textoValor);
-        jugadores.add(new JLabel("J1: A D W S   J2: flechas"));
-        jugadores.add(new JLabel("P: pausa   Esc: terminar"));
+        // JPanel con TitledBorder: grupo "Partido"
+        JPanel partido = new JPanel(new GridLayout(4, 2, 10, 10));
+        partido.setBorder(new TitledBorder("Partido"));
+        partido.add(new JLabel("Minutos o goles:"));
+        partido.add(textoValor);
+        partido.add(new JLabel("P: pausa"));
+        partido.add(new JLabel("Esc: terminar"));
 
         centro.add(juego);
-        centro.add(jugadores);
+        centro.add(partido);
         add(centro, BorderLayout.CENTER);
 
         // JButton: la ventana principal (JFrame) le asigna la acción
-        botonIniciar = new JButton("Iniciar partido");
-        botonIniciar.setFont(new Font("SansSerif", Font.BOLD, 18));
-        add(botonIniciar, BorderLayout.SOUTH);
+        botonSiguiente = new JButton("Siguiente: elegir jugadores");
+        botonSiguiente.setFont(new Font("SansSerif", Font.BOLD, 18));
+        add(botonSiguiente, BorderLayout.SOUTH);
     }
 
     /**
@@ -129,24 +118,14 @@ public class PanelConfiguracion extends JPanel {
     }
 
     /**
-     * @return JButton para iniciar el partido (la ventana principal le asigna la acción)
+     * @return JButton para pasar a la pantalla de jugadores (la ventana principal le asigna la acción)
      */
-    public JButton getBotonIniciar() { return botonIniciar; }
+    public JButton getBotonSiguiente() { return botonSiguiente; }
 
     /**
      * @return true si se eligió jugador vs máquina
      */
     public boolean esContraMaquina() { return comboModalidad.getSelectedIndex() == 1; }
-
-    /**
-     * @return país del jugador 1
-     */
-    public String getPais1() { return (String) comboPais1.getSelectedItem(); }
-
-    /**
-     * @return país del jugador 2
-     */
-    public String getPais2() { return (String) comboPais2.getSelectedItem(); }
 
     /**
      * @return "tiempo" o "goles"

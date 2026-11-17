@@ -10,17 +10,26 @@ import org.junit.Test;
 public class PartidoTest {
 
     /**
+     * Retorna el juego (singleton) como nuevo, para que cada prueba empiece igual.
+     * @return el juego sin partido, con 0 puntos y estadísticas en 1
+     */
+    private DOPOSoccer nuevoJuego() {
+        DOPOSoccer juego = DOPOSoccer.getInstance();
+        juego.reiniciar();
+        return juego;
+    }
+
+    /**
      * El partido empieza 0 - 0 y sin ganador.
      */
     @Test
     public void deberiaIniciarCeroACero() throws DOPOSoccerException {
-        DOPOSoccer juego = new DOPOSoccer();
+        DOPOSoccer juego = nuevoJuego();
         juego.iniciarPartido(Camerun.PAIS, Nigeria.PAIS, DOPOSoccer.POR_GOLES, 3);
-        Partido p = juego.getPartido();
-        assertEquals(0, p.getJugador(1).getGoles());
-        assertEquals(0, p.getJugador(2).getGoles());
-        assertNull(p.getGanador());
-        assertFalse(p.estaTerminado());
+        assertEquals(0, juego.getJugador(1).getGoles());
+        assertEquals(0, juego.getJugador(2).getGoles());
+        assertNull(juego.getGanador());
+        assertFalse(juego.estaTerminado());
     }
 
     /**
@@ -70,11 +79,11 @@ public class PartidoTest {
      */
     @Test
     public void noDeberiaAvanzarEnPausa() throws DOPOSoccerException {
-        DOPOSoccer juego = new DOPOSoccer();
+        DOPOSoccer juego = nuevoJuego();
         juego.iniciarPartido(Camerun.PAIS, Nigeria.PAIS, DOPOSoccer.POR_TIEMPO, 2);
         juego.pausar();
         juego.actualizar(5);
-        assertEquals(0, juego.getPartido().getTiempoJugado(), 0.001);
+        assertEquals("02:00", juego.getTextoTiempo());
     }
 
     /**
@@ -82,7 +91,7 @@ public class PartidoTest {
      */
     @Test(expected = DOPOSoccerException.class)
     public void deberiaLanzarExcepcionConCeroGoles() throws DOPOSoccerException {
-        new DOPOSoccer().iniciarPartido(Camerun.PAIS, Nigeria.PAIS, DOPOSoccer.POR_GOLES, 0);
+        nuevoJuego().iniciarPartido(Camerun.PAIS, Nigeria.PAIS, DOPOSoccer.POR_GOLES, 0);
     }
 
     /**
@@ -91,7 +100,7 @@ public class PartidoTest {
     @Test
     public void deberiaLanzarExcepcionConPaisInvalido() {
         try {
-            new DOPOSoccer().iniciarPartido("Brasil", Nigeria.PAIS, DOPOSoccer.POR_GOLES, 3);
+            nuevoJuego().iniciarPartido("Brasil", Nigeria.PAIS, DOPOSoccer.POR_GOLES, 3);
             fail("Debía lanzar la excepción");
         } catch (DOPOSoccerException e) {
             assertEquals(DOPOSoccerException.PAIS_INVALIDO, e.getMessage());
@@ -103,7 +112,7 @@ public class PartidoTest {
      */
     @Test(expected = DOPOSoccerException.class)
     public void deberiaLanzarExcepcionConJugadorInvalido() throws DOPOSoccerException {
-        DOPOSoccer juego = new DOPOSoccer();
+        DOPOSoccer juego = nuevoJuego();
         juego.iniciarPartido(Camerun.PAIS, Nigeria.PAIS, DOPOSoccer.POR_GOLES, 3);
         juego.moverJugador(3, "derecha");
     }
@@ -113,7 +122,7 @@ public class PartidoTest {
      */
     @Test(expected = DOPOSoccerException.class)
     public void deberiaLanzarExcepcionConDireccionInvalida() throws DOPOSoccerException {
-        DOPOSoccer juego = new DOPOSoccer();
+        DOPOSoccer juego = nuevoJuego();
         juego.iniciarPartido(Camerun.PAIS, Nigeria.PAIS, DOPOSoccer.POR_GOLES, 3);
         juego.moverJugador(1, "arriba");
     }
@@ -123,7 +132,7 @@ public class PartidoTest {
      */
     @Test(expected = DOPOSoccerException.class)
     public void deberiaLanzarExcepcionSinPartido() throws DOPOSoccerException {
-        new DOPOSoccer().patearJugador(1);
+        nuevoJuego().patearJugador(1);
     }
 
     /**
@@ -155,16 +164,16 @@ public class PartidoTest {
      */
     @Test
     public void deberiaMantenerPuntosEntrePartidos() throws DOPOSoccerException {
-        DOPOSoccer juego = new DOPOSoccer();
+        DOPOSoccer juego = nuevoJuego();
         juego.iniciarPartido(CoreaDelSur.PAIS, Camerun.PAIS, DOPOSoccer.POR_GOLES, 1);
-        juego.getPartido().getJugador(2).anotarGol();
+        juego.getJugador(2).anotarGol();
         juego.actualizar(0.016);
         assertEquals(25, juego.getPuntos(1));
         assertEquals(100, juego.getPuntos(2));
         juego.iniciarPartido(Nigeria.PAIS, EstadosUnidos.PAIS, DOPOSoccer.POR_GOLES, 1);
         assertEquals(25, juego.getPuntos(1));
         assertEquals(100, juego.getPuntos(2));
-        juego.getPartido().getJugador(1).anotarGol();
+        juego.getJugador(1).anotarGol();
         juego.actualizar(0.016);
         assertEquals(125, juego.getPuntos(1));
         assertEquals(125, juego.getPuntos(2));

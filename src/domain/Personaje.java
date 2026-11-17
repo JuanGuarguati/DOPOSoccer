@@ -23,6 +23,20 @@ public abstract class Personaje {
     }
 
     /**
+     * Crea el personaje que corresponde a un país.
+     * @param pais nombre del país
+     * @return el personaje del país
+     * @throws DOPOSoccerException si el país no existe
+     */
+    public static Personaje crear(String pais) throws DOPOSoccerException {
+        if (CoreaDelSur.PAIS.equals(pais)) return new CoreaDelSur();
+        if (Camerun.PAIS.equals(pais)) return new Camerun();
+        if (Nigeria.PAIS.equals(pais)) return new Nigeria();
+        if (EstadosUnidos.PAIS.equals(pais)) return new EstadosUnidos();
+        throw new DOPOSoccerException(DOPOSoccerException.PAIS_INVALIDO);
+    }
+
+    /**
      * Ejecuta el tiro de poder del personaje sobre el balón.
      * @param balon balón del partido
      * @param haciaDerecha true si el tiro sale hacia la derecha

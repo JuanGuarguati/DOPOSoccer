@@ -16,6 +16,10 @@ public class DOPOSoccerException extends Exception {
     public static final String VALOR_INVALIDO = "El tipo de partido debe ser \"tiempo\" o \"goles\" y el valor debe ser mayor que cero.";
     /** Mensaje cuando la dirección no es izquierda ni derecha. */
     public static final String DIRECCION_INVALIDA = "La dirección debe ser \"izquierda\" o \"derecha\".";
+    /** Mensaje cuando el jugador no tiene puntos para pagar una mejora. */
+    public static final String PUNTOS_INSUFICIENTES = "El jugador no tiene puntos suficientes para esta mejora.";
+    /** Mensaje cuando se intenta mejorar estadísticas con un partido en curso. */
+    public static final String PARTIDO_EN_CURSO = "No se puede hacer esto mientras hay un partido en curso.";
     /** Mensaje cuando la estadística no existe o ya está en el máximo. */
     public static final String ESTADISTICA_MAXIMA = "La estadística no existe o ya está en su valor máximo (10).";
 

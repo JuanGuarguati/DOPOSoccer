@@ -48,4 +48,14 @@ public class PartidoPorTiempo extends Partido {
     public boolean estaEnMuerteSubita() {
         return muerteSubita;
     }
+
+    /**
+     * Muestra el tiempo que falta, o "MUERTE SÚBITA" si se acabó con empate.
+     * @return texto del tiempo
+     */
+    @Override
+    public String getTextoTiempo() {
+        if (muerteSubita) return "MUERTE SÚBITA";
+        return formato(getTiempoRestante());
+    }
 }

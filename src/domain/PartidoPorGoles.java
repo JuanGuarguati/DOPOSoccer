@@ -39,4 +39,13 @@ public class PartidoPorGoles extends Partido {
     public int getGolesParaGanar() {
         return golesParaGanar;
     }
+
+    /**
+     * Muestra a cuántos goles se juega y el tiempo jugado.
+     * @return texto del tiempo
+     */
+    @Override
+    public String getTextoTiempo() {
+        return "A " + golesParaGanar + " goles - " + formato(getTiempoJugado());
+    }
 }

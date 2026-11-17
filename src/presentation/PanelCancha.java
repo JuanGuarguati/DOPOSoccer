@@ -8,7 +8,8 @@ import javax.swing.border.*;
 /**
  * JPanel: dibuja la cancha, los arcos, el balón, los jugadores y el estado del juego
  * (tiempo, marcador, vida y barra de poder de cada jugador).
- * Las medidas del dominio se escalan a la resolución elegida.
+ * Todo se lee a través de la fachada DOPOSoccer; las medidas del dominio se escalan
+ * a la resolución elegida.
  * Componentes Swing que contiene:
  * JButton de pausa (arriba a la derecha) y PanelPausa (JPanel con el menú de pausa).
  * Recibe el teclado (KeyListener) que le asigna la ventana principal.
@@ -19,10 +20,20 @@ public class PanelCancha extends JPanel {
     public static final Color CIELO = new Color(135, 200, 250);
     /** Color del pasto. */
     public static final Color PASTO = new Color(60, 160, 70);
+    /** Color de las franjas oscuras del pasto. */
+    public static final Color PASTO_OSCURO = new Color(48, 140, 58);
     /** Color del jugador 1. */
     public static final Color COLOR_J1 = new Color(30, 90, 220);
     /** Color del jugador 2. */
     public static final Color COLOR_J2 = new Color(220, 50, 50);
+    /** Colores {cabeza, banda, cuerpo} de un jugador aturdido. */
+    public static final Color[] COLORES_ATURDIDO = {Color.LIGHT_GRAY, Color.GRAY, Color.GRAY};
+    /** Ancho del pie que se dibuja al patear. */
+    public static final int PIE_ANCHO = 22;
+    /** Alto del pie que se dibuja al patear. */
+    public static final int PIE_ALTO = 10;
+    /** Gotas que se dibujan cuando el jugador recibe un golpe. */
+    public static final int GOTAS = 5;
 
     /** Fachada del dominio de donde se lee el estado del partido. */
     private DOPOSoccer dominio;
@@ -97,34 +108,38 @@ public class PanelCancha extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Partido partido = dominio.getPartido();
-        if (partido == null) return;
+        if (!dominio.hayPartido()) return;
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        Cancha cancha = partido.getCancha();
-        double escala = Math.min(getWidth() / (double) cancha.getAncho(), getHeight() / (double) cancha.getAlto());
-        g2.scale(escala, escala);
-        dibujarCancha(g2, cancha);
-        dibujarBalon(g2, partido.getBalon());
         try {
-            dibujarJugador(g2, partido.getJugador(1), COLOR_J1);
-            dibujarJugador(g2, partido.getJugador(2), COLOR_J2);
-            dibujarEstado(g2, partido, cancha);
+            Cancha cancha = dominio.getCancha();
+            double escala = Math.min(getWidth() / (double) cancha.getAncho(), getHeight() / (double) cancha.getAlto());
+            g2.scale(escala, escala);
+            dibujarCancha(g2, cancha);
+            dibujarBalon(g2, dominio.getBalon());
+            dibujarJugador(g2, dominio.getJugador(1), COLOR_J1);
+            dibujarJugador(g2, dominio.getJugador(2), COLOR_J2);
+            dibujarEstado(g2, cancha);
         } catch (DOPOSoccerException e) {
             Log.record(e);
         }
     }
 
     /**
-     * Dibuja el pasto, la línea central y los dos arcos.
+     * Dibuja el pasto a franjas, la línea central y los dos arcos.
      * @param g contexto gráfico
      * @param cancha cancha del partido
      */
     private void dibujarCancha(Graphics2D g, Cancha cancha) {
-        g.setColor(PASTO);
-        g.fillRect(0, cancha.getNivelPiso(), cancha.getAncho(), cancha.getAlto() - cancha.getNivelPiso());
+        int piso = cancha.getNivelPiso();
+        int altoPasto = cancha.getAlto() - piso;
+        int franja = cancha.getAncho() / 10;
+        for (int i = 0; i < 10; i++) {
+            g.setColor(i % 2 == 0 ? PASTO : PASTO_OSCURO);
+            g.fillRect(i * franja, piso, franja + 1, altoPasto);
+        }
         g.setColor(Color.WHITE);
-        g.drawLine(cancha.getAncho() / 2, cancha.getNivelPiso(), cancha.getAncho() / 2, cancha.getAlto());
+        g.drawLine(cancha.getAncho() / 2, piso, cancha.getAncho() / 2, cancha.getAlto());
         for (Arco arco : new Arco[] {cancha.getArcoIzquierdo(), cancha.getArcoDerecho()}) {
             g.setColor(new Color(255, 255, 255, 120));
             g.fillRect(arco.getX(), arco.getY(), arco.getAncho(), arco.getAlto());
@@ -154,11 +169,9 @@ public class PanelCancha extends JPanel {
     }
 
     /**
-     * Dibuja un jugador. Cada país se ve distinto (colores de su bandera):
-     * cabeza, banda en la frente y cuerpo. Estados Unidos lleva el cuerpo a rayas.
-     * Para saber quién es quién, la cabeza tiene un borde del color del jugador
-     * (azul J1, rojo J2) y encima se escribe "J1" o "J2" con el país.
-     * Si está aturdido se dibuja gris con estrellas.
+     * Dibuja un jugador: cuerpo con los colores de su país, cabeza, pie si está pateando
+     * y sangre si recibió un golpe. Estados Unidos lleva el cuerpo a rayas.
+     * Encima se escribe "J1" o "J2" con el país. Si está aturdido se dibuja gris con estrellas.
      * @param g contexto gráfico
      * @param j jugador
      * @param color color del jugador (borde y etiqueta)
@@ -167,14 +180,11 @@ public class PanelCancha extends JPanel {
         int r = j.getRadio();
         int x = (int) j.getX();
         int y = (int) j.getY();
-        String pais = j.getPersonaje().getPais();
-        Color[] colores = coloresPais(pais);
+        String pais = j.getPais();
         boolean aturdido = j.estaAturdido();
-        Color cabeza = aturdido ? Color.LIGHT_GRAY : colores[0];
-        Color banda = aturdido ? Color.GRAY : colores[1];
-        Color cuerpo = aturdido ? Color.GRAY : colores[2];
+        Color[] colores = aturdido ? COLORES_ATURDIDO : coloresPais(pais);
         // cuerpo
-        g.setColor(cuerpo);
+        g.setColor(colores[2]);
         g.fillRect(x - r / 2, y + r - 5, r, r + 5);
         if (!aturdido && pais.equals(EstadosUnidos.PAIS)) {
             g.setColor(Color.WHITE);
@@ -184,27 +194,9 @@ public class PanelCancha extends JPanel {
         }
         g.setColor(Color.BLACK);
         g.drawRect(x - r / 2, y + r - 5, r, r + 5);
-        // cabeza con la banda en la frente
-        g.setColor(cabeza);
-        g.fillOval(x - r, y - r, 2 * r, 2 * r);
-        Shape antes = g.getClip();
-        g.clipRect(x - r, y - r, 2 * r, 2 * r);
-        g.clip(new java.awt.geom.Ellipse2D.Double(x - r, y - r, 2 * r, 2 * r));
-        g.setColor(banda);
-        g.fillRect(x - r, y - r / 2, 2 * r, r / 3);
-        g.setClip(antes);
-        // borde del color del jugador
-        g.setStroke(new BasicStroke(4));
-        g.setColor(aturdido ? Color.GRAY : color);
-        g.drawOval(x - r, y - r, 2 * r, 2 * r);
-        g.setStroke(new BasicStroke(1));
-        // ojo hacia donde mira
-        int ojo = j.estaMirandoDerecha() ? x + r / 3 : x - r / 3 - 10;
-        g.setColor(Color.WHITE);
-        g.fillOval(ojo, y - 4, 12, 12);
-        g.setColor(Color.BLACK);
-        g.drawOval(ojo, y - 4, 12, 12);
-        g.fillOval(ojo + (j.estaMirandoDerecha() ? 6 : 1), y, 5, 5);
+        dibujarPie(g, j);
+        dibujarCabeza(g, x, y, r, colores, aturdido ? Color.GRAY : color, j.estaMirandoDerecha());
+        dibujarSangre(g, j);
         // etiqueta: J1/J2 y país
         g.setFont(new Font("SansSerif", Font.BOLD, 13));
         String etiqueta = "J" + j.getNumero() + " · " + pais;
@@ -213,6 +205,72 @@ public class PanelCancha extends JPanel {
         if (aturdido) {
             g.setColor(Color.YELLOW);
             g.drawString("* * *", x - 15, y - r - 22);
+        }
+    }
+
+    /**
+     * Dibuja la cabeza: círculo con la banda en la frente, borde del color del jugador
+     * y un ojo hacia donde mira.
+     * @param g contexto gráfico
+     * @param x centro horizontal de la cabeza
+     * @param y centro vertical de la cabeza
+     * @param r radio de la cabeza
+     * @param colores colores {cabeza, banda, cuerpo}
+     * @param borde color del borde
+     * @param derecha true si mira a la derecha
+     */
+    private void dibujarCabeza(Graphics2D g, int x, int y, int r, Color[] colores, Color borde, boolean derecha) {
+        g.setColor(colores[0]);
+        g.fillOval(x - r, y - r, 2 * r, 2 * r);
+        Shape antes = g.getClip();
+        g.clip(new java.awt.geom.Ellipse2D.Double(x - r, y - r, 2 * r, 2 * r));
+        g.setColor(colores[1]);
+        g.fillRect(x - r, y - r / 2, 2 * r, r / 3);
+        g.setClip(antes);
+        g.setStroke(new BasicStroke(4));
+        g.setColor(borde);
+        g.drawOval(x - r, y - r, 2 * r, 2 * r);
+        g.setStroke(new BasicStroke(1));
+        int ojo = derecha ? x + r / 3 : x - r / 3 - 10;
+        g.setColor(Color.WHITE);
+        g.fillOval(ojo, y - 4, 12, 12);
+        g.setColor(Color.BLACK);
+        g.drawOval(ojo, y - 4, 12, 12);
+        g.fillOval(ojo + (derecha ? 6 : 1), y, 5, 5);
+    }
+
+    /**
+     * Si el jugador está pateando, dibuja el pie estirado hacia donde mira.
+     * @param g contexto gráfico
+     * @param j jugador
+     */
+    private void dibujarPie(Graphics2D g, Jugador j) {
+        if (!j.estaPateando()) return;
+        int r = j.getRadio();
+        int x = (int) j.getX();
+        int y = (int) j.getY() + 2 * r - PIE_ALTO;
+        int inicio = j.estaMirandoDerecha() ? x + r / 2 : x - r / 2 - PIE_ANCHO;
+        g.setColor(Color.BLACK);
+        g.fillRoundRect(inicio, y, PIE_ANCHO, PIE_ALTO, 6, 6);
+    }
+
+    /**
+     * Si el jugador acaba de recibir un golpe, dibuja gotas de sangre que salen de la cabeza.
+     * @param g contexto gráfico
+     * @param j jugador
+     */
+    private void dibujarSangre(Graphics2D g, Jugador j) {
+        if (!j.estaGolpeado()) return;
+        int r = j.getRadio();
+        int x = (int) j.getX();
+        int y = (int) j.getY();
+        double avance = 1 - j.getTiempoGolpe() / Jugador.DURACION_GOLPE;
+        g.setColor(new Color(200, 0, 0));
+        for (int i = 0; i < GOTAS; i++) {
+            double angulo = Math.PI * (0.15 + 0.7 * i / (GOTAS - 1));
+            int dx = (int) (Math.cos(angulo) * (r + 6 + 14 * avance));
+            int dy = (int) (Math.sin(angulo) * (r + 6 + 14 * avance));
+            g.fillOval(x - dx - 3, y - dy - 3, 6, 6);
         }
     }
 
@@ -232,13 +290,12 @@ public class PanelCancha extends JPanel {
     /**
      * Dibuja el marcador, el tiempo y la información de cada jugador.
      * @param g contexto gráfico
-     * @param partido partido en curso
      * @param cancha cancha del partido
-     * @throws DOPOSoccerException si no se puede leer un jugador
+     * @throws DOPOSoccerException si no se puede leer el partido
      */
-    private void dibujarEstado(Graphics2D g, Partido partido, Cancha cancha) throws DOPOSoccerException {
-        Jugador j1 = partido.getJugador(1);
-        Jugador j2 = partido.getJugador(2);
+    private void dibujarEstado(Graphics2D g, Cancha cancha) throws DOPOSoccerException {
+        Jugador j1 = dominio.getJugador(1);
+        Jugador j2 = dominio.getJugador(2);
         int centro = cancha.getAncho() / 2;
         g.setColor(new Color(0, 0, 0, 150));
         g.fillRoundRect(centro - 90, 8, 180, 60, 15, 15);
@@ -247,11 +304,11 @@ public class PanelCancha extends JPanel {
         String marcador = j1.getGoles() + " - " + j2.getGoles();
         g.drawString(marcador, centro - g.getFontMetrics().stringWidth(marcador) / 2, 40);
         g.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        String tiempo = textoTiempo(partido);
+        String tiempo = dominio.getTextoTiempo();
         g.drawString(tiempo, centro - g.getFontMetrics().stringWidth(tiempo) / 2, 60);
         dibujarInfoJugador(g, j1, 20, COLOR_J1);
         dibujarInfoJugador(g, j2, cancha.getAncho() - 240, COLOR_J2);
-        if (partido.estaPausado()) {
+        if (dominio.estaPausado()) {
             // Se oscurece la cancha pero no el marcador, para que el estado siga a la vista.
             g.setColor(new Color(0, 0, 0, 120));
             g.fillRect(0, 70, cancha.getAncho(), cancha.getAlto() - 70);
@@ -259,51 +316,40 @@ public class PanelCancha extends JPanel {
     }
 
     /**
-     * Arma el texto del tiempo según el tipo de partido.
-     * @param partido partido en curso
-     * @return texto a mostrar
-     */
-    private String textoTiempo(Partido partido) {
-        if (partido instanceof PartidoPorTiempo) {
-            PartidoPorTiempo p = (PartidoPorTiempo) partido;
-            if (p.estaEnMuerteSubita()) return "MUERTE SÚBITA";
-            return formato(p.getTiempoRestante());
-        }
-        return "A " + ((PartidoPorGoles) partido).getGolesParaGanar() + " goles - " + formato(partido.getTiempoJugado());
-    }
-
-    /**
-     * Convierte segundos a mm:ss.
-     * @param segundos segundos
-     * @return texto mm:ss
-     */
-    private String formato(double segundos) {
-        int s = (int) Math.ceil(segundos);
-        return String.format("%02d:%02d", s / 60, s % 60);
-    }
-
-    /**
-     * Dibuja la vida y la barra de poder de un jugador.
+     * Dibuja el nombre, la barra de vida y la barra de poder de un jugador.
      * @param g contexto gráfico
      * @param j jugador
      * @param x posición horizontal del recuadro
      * @param color color del jugador
      */
     private void dibujarInfoJugador(Graphics2D g, Jugador j, int x, Color color) {
-        double vidaMax = j.getEstadisticas().getVidaMax();
+        double vidaMax = j.getVidaMax();
         g.setColor(color);
         g.setFont(new Font("SansSerif", Font.BOLD, 14));
-        g.drawString("J" + j.getNumero() + " - " + j.getPersonaje().getPais(), x, 22);
-        g.setColor(Color.DARK_GRAY);
-        g.fillRect(x, 28, 220, 14);
-        g.setColor(j.estaAturdido() ? Color.GRAY : new Color(40, 200, 60));
-        g.fillRect(x, 28, (int) (220 * j.getVida() / vidaMax), 14);
+        g.drawString("J" + j.getNumero() + " - " + j.getPais(), x, 22);
+        dibujarBarra(g, x, 28, 220, 14, j.getVida() / vidaMax, j.estaAturdido() ? Color.GRAY : new Color(40, 200, 60));
         g.setColor(Color.WHITE);
         g.setFont(new Font("SansSerif", Font.PLAIN, 11));
         g.drawString("Vida " + (int) j.getVida() + "/" + (int) vidaMax, x + 4, 39);
-        g.setColor(Color.DARK_GRAY);
-        g.fillRect(x, 46, 220, 10);
+        dibujarBarra(g, x, 46, 220, 10, 0, Color.ORANGE);
         g.setColor(Color.WHITE);
         g.drawString("Poder (versión dos)", x + 4, 55);
+    }
+
+    /**
+     * Dibuja una barra horizontal llena en una fracción.
+     * @param g contexto gráfico
+     * @param x posición horizontal
+     * @param y posición vertical
+     * @param ancho ancho total
+     * @param alto alto
+     * @param fraccion parte llena, entre 0 y 1
+     * @param color color de la parte llena
+     */
+    private void dibujarBarra(Graphics2D g, int x, int y, int ancho, int alto, double fraccion, Color color) {
+        g.setColor(Color.DARK_GRAY);
+        g.fillRect(x, y, ancho, alto);
+        g.setColor(color);
+        g.fillRect(x, y, (int) (ancho * Math.max(0, Math.min(1, fraccion))), alto);
     }
 }

@@ -18,6 +18,10 @@ public class Jugador {
     public static final double FUERZA_PATADA_X = 550;
     /** Fuerza vertical que recibe el balón con una patada (negativa es hacia arriba). */
     public static final double FUERZA_PATADA_Y = -380;
+    /** Segundos que dura la animación de la patada. */
+    public static final double DURACION_PATADA = 0.25;
+    /** Segundos que se muestra el golpe después de recibir daño. */
+    public static final double DURACION_GOLPE = 0.4;
 
     private int numero;
     private Personaje personaje;
@@ -32,6 +36,8 @@ public class Jugador {
     private boolean aturdido;
     private double tiempoAturdido;
     private int puntos;
+    private double tiempoPatada;
+    private double tiempoGolpe;
 
     /**
      * Crea un jugador con 0 goles, vida máxima y estadísticas en 1.
@@ -87,6 +93,7 @@ public class Jugador {
      */
     public void patear(Balon balon, Jugador rival) {
         if (aturdido) return;
+        tiempoPatada = DURACION_PATADA;
         if (tocaBalon(balon)) {
             double direccion = mirandoDerecha ? 1 : -1;
             balon.recibirPatada(direccion * FUERZA_PATADA_X, FUERZA_PATADA_Y);
@@ -119,12 +126,13 @@ public class Jugador {
     }
 
     /**
-     * Resta vida al jugador. La vida nunca queda menor que cero.
-     * Si llega a cero, queda aturdido 3 segundos.
+     * Resta vida al jugador y muestra el golpe. La vida nunca queda menor que cero.
+     * Solo si llega a cero queda aturdido 3 segundos.
      * @param danio cantidad de vida que se resta
      */
     public void recibirDanio(double danio) {
         vida = Math.max(0, vida - danio);
+        tiempoGolpe = DURACION_GOLPE;
         if (vida == 0 && !aturdido) {
             aturdido = true;
             tiempoAturdido = TIEMPO_ATURDIDO;
@@ -153,6 +161,8 @@ public class Jugador {
      * @param cancha cancha del partido
      */
     public void actualizar(double segundos, Cancha cancha) {
+        tiempoPatada = Math.max(0, tiempoPatada - segundos);
+        tiempoGolpe = Math.max(0, tiempoGolpe - segundos);
         if (aturdido) {
             tiempoAturdido -= segundos;
             if (tiempoAturdido <= 0) {
@@ -170,6 +180,26 @@ public class Jugador {
             enSuelo = true;
         }
         x = Math.max(RADIO, Math.min(cancha.getAncho() - RADIO, x));
+    }
+
+    /**
+     * Desplaza al jugador horizontalmente sin salirse de la cancha.
+     * Se usa para separar a los jugadores cuando se pisan.
+     * @param dx distancia horizontal (negativa hacia la izquierda)
+     * @param cancha cancha del partido
+     */
+    public void desplazar(double dx, Cancha cancha) {
+        x = Math.max(RADIO, Math.min(cancha.getAncho() - RADIO, x + dx));
+    }
+
+    /**
+     * Cambia las estadísticas del jugador (las que compró en partidos anteriores)
+     * y deja la vida en su nuevo máximo.
+     * @param estadisticas estadísticas que usa el jugador
+     */
+    public void setEstadisticas(Estadisticas estadisticas) {
+        this.estadisticas = estadisticas;
+        this.vida = estadisticas.getVidaMax();
     }
 
     /**
@@ -239,4 +269,34 @@ public class Jugador {
      * @return true si mira a la derecha
      */
     public boolean estaMirandoDerecha() { return mirandoDerecha; }
+
+    /**
+     * @return país del personaje del jugador
+     */
+    public String getPais() { return personaje.getPais(); }
+
+    /**
+     * @return vida máxima según las estadísticas
+     */
+    public double getVidaMax() { return estadisticas.getVidaMax(); }
+
+    /**
+     * @return true mientras se ve la animación de la patada
+     */
+    public boolean estaPateando() { return tiempoPatada > 0; }
+
+    /**
+     * @return segundos que le quedan a la animación de la patada
+     */
+    public double getTiempoPatada() { return tiempoPatada; }
+
+    /**
+     * @return true mientras se muestra el golpe recibido
+     */
+    public boolean estaGolpeado() { return tiempoGolpe > 0; }
+
+    /**
+     * @return segundos que le quedan al golpe
+     */
+    public double getTiempoGolpe() { return tiempoGolpe; }
 }

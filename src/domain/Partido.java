@@ -33,8 +33,8 @@ public abstract class Partido {
     public Partido(String pais1, String pais2) throws DOPOSoccerException {
         cancha = new Cancha(ANCHO_CANCHA, ALTO_CANCHA);
         balon = new Balon(ANCHO_CANCHA / 2.0, 100);
-        Personaje personaje1 = crearPersonaje(pais1);
-        Personaje personaje2 = crearPersonaje(pais2);
+        Personaje personaje1 = Personaje.crear(pais1);
+        Personaje personaje2 = Personaje.crear(pais2);
         double piso = cancha.getNivelPiso() - Jugador.RADIO * 2;
         jugadores = new Jugador[] {
             new Jugador(1, personaje1, DISTANCIA_INICIAL, piso),
@@ -43,7 +43,7 @@ public abstract class Partido {
     }
 
     /**
-     * Avanza el partido: tiempo, balón, jugadores, choques, goles y ganador.
+     * Avanza el partido: tiempo, balón, jugadores, choques, separación, goles y ganador.
      * No hace nada si está pausado o terminado.
      * @param segundos tiempo que pasó desde la última actualización
      */
@@ -55,6 +55,7 @@ public abstract class Partido {
             j.actualizar(segundos, cancha);
             cabecear(j);
         }
+        separarJugadores();
         verificarGol();
         if (hayGanador()) {
             finalizar();
@@ -147,6 +148,12 @@ public abstract class Partido {
     public abstract boolean hayGanador();
 
     /**
+     * Texto del tiempo que muestra la interfaz; depende del tipo de partido.
+     * @return texto del tiempo
+     */
+    public abstract String getTextoTiempo();
+
+    /**
      * Retorna el jugador con más goles.
      * @return el ganador, o null si están empatados
      */
@@ -193,17 +200,29 @@ public abstract class Partido {
     public double getTiempoJugado() { return tiempoJugado; }
 
     /**
-     * Crea el personaje que corresponde a un país.
-     * @param pais nombre del país
-     * @return el personaje
-     * @throws DOPOSoccerException si el país no existe
+     * Convierte segundos a texto mm:ss.
+     * @param segundos segundos
+     * @return texto mm:ss
      */
-    private Personaje crearPersonaje(String pais) throws DOPOSoccerException {
-        if (CoreaDelSur.PAIS.equals(pais)) return new CoreaDelSur();
-        if (Camerun.PAIS.equals(pais)) return new Camerun();
-        if (Nigeria.PAIS.equals(pais)) return new Nigeria();
-        if (EstadosUnidos.PAIS.equals(pais)) return new EstadosUnidos();
-        throw new DOPOSoccerException(DOPOSoccerException.PAIS_INVALIDO);
+    protected String formato(double segundos) {
+        int s = (int) Math.ceil(segundos);
+        return String.format("%02d:%02d", s / 60, s % 60);
+    }
+
+    /**
+     * Si los dos jugadores se pisan (se cruzan a la misma altura), los aparta
+     * la mitad de lo que se pisan cada uno, para que no queden uno dentro del otro.
+     */
+    private void separarJugadores() {
+        Jugador j1 = jugadores[0];
+        Jugador j2 = jugadores[1];
+        double dx = j2.getX() - j1.getX();
+        double minimo = Jugador.RADIO * 2;
+        if (Math.abs(j2.getY() - j1.getY()) >= minimo || Math.abs(dx) >= minimo) return;
+        double falta = minimo - Math.abs(dx);
+        double lado = dx >= 0 ? 1 : -1;
+        j1.desplazar(-lado * falta / 2, cancha);
+        j2.desplazar(lado * falta / 2, cancha);
     }
 
     /**
