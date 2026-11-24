@@ -8,7 +8,7 @@ import java.util.List;
  * y el jugador 2 el derecho. Cada tipo de partido define cuándo hay ganador.
  * El jugador 2 puede ser una Maquina (partido contra la máquina).
  */
-public abstract class Partido {
+public abstract class Partido implements ControlPartido {
 
     /**
      * Modos de juego. Cada modo sabe crear su tipo de partido.

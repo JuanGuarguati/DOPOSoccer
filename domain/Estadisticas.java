@@ -4,7 +4,7 @@ package domain;
  * Estadísticas de un jugador: speed, kick, jump y survival.
  * Todas empiezan en 1 y pueden subir hasta 10. Aplican a todos los personajes del jugador.
  */
-public class Estadisticas {
+public class Estadisticas implements Mejorable {
 
     /** Valor mínimo de una estadística. */
     public static final int MINIMO = 1;

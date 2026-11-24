@@ -1,0 +1,1551 @@
+DOPOSoccer - DIAGRAMA DE CLASES COMPLETO (entrega del 22 de noviembre)
+Cada clase con sus atributos y operaciones, en el mismo orden del código, listos para copiar y pegar en Astah.
+Símbolos: - privado, + público, # protegido, ~ de paquete.
+[Static] = marcar "static" en Astah (se ve subrayado).  [Abstract] = marcar "abstract" (se ve en cursiva).
+Constructores: en Astah se escriben como operación con el nombre de la clase y sin tipo de retorno.
+Las clases internas (por ejemplo Partido::ModoJuego) se crean dentro de su clase dueña.
+
+
+######################################################################
+PAQUETE domain
+######################################################################
+
+======================================================================
+<<enumeration>> Accion
+======================================================================
+LITERALES
+  QUEDARSE, MOVER_IZQUIERDA, MOVER_DERECHA, SALTAR, PATEAR
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  - Accion()
+
+======================================================================
+Arco
+  (implementa Interactuable, Dibujable)
+======================================================================
+ATRIBUTOS
+  + ANCHO : int = 60   [Static]
+  + ALTO : int = 150   [Static]
+  - x : int
+  - y : int
+  - ancho : int
+  - alto : int
+  - esIzquierdo : boolean
+OPERACIONES
+  + Arco(x : int, y : int, esIzquierdo : boolean)
+  + interactuar(balon : Balon, partido : Partido) : void
+  + aComandoDibujo() : ComandoDibujo
+  + esGol(balon : Balon) : boolean
+  + chocaConTravesano(balon : Balon) : boolean
+  + getX() : int
+  + getY() : int
+  + getAncho() : int
+  + getAlto() : int
+  + esIzquierdo() : boolean
+
+======================================================================
+Balon
+  (implementa Movible, Dibujable, Pateable)
+======================================================================
+ATRIBUTOS
+  + RADIO : int = 15   [Static]
+  + REBOTE_PISO : double = 0.7   [Static]
+  + REBOTE_PARED : double = 0.8   [Static]
+  + ROCE : double = 0.99   [Static]
+  + VELOCIDAD_MINIMA_REBOTE : double = 30   [Static]
+  + DURACION_TIRO : double = 2.5   [Static]
+  + REBOTE_TORNADO : double = 260   [Static]
+  - x : double
+  - y : double
+  - velocidadX : double
+  - velocidadY : double
+  - radio : int
+  - yAnterior : double
+  - tirador : Jugador
+  - nombreTiro : String
+  - tiempoTiro : double
+  - conGravedad : boolean
+  - tornado : boolean
+  - senuelos : List<Balon>
+  - tiempoSenuelos : double
+  - tirosLanzados : int
+OPERACIONES
+  + Balon(x : double, y : double)
+  + mover(segundos : double, cancha : Cancha) : void
+  - moverSenuelos(segundos : double, cancha : Cancha) : void
+  + aplicarGravedad(gravedad : double) : void
+  + rebotar(cancha : Cancha) : void
+  + recibirPatada(fuerzaX : double, fuerzaY : double) : void
+  + lanzarTiro(tirador : Jugador, nombre : String, fuerzaX : double, fuerzaY : double, gravedad : boolean, comoTornado : boolean) : void
+  + rebotarEn(nuevoX : double, nuevoY : double, normalX : double, normalY : double, rebote : double) : void
+  + getTirosLanzados() : int
+  + crearSenuelos(cantidad : int, duracion : double) : void
+  + terminarTiro() : void
+  + tieneTiro() : boolean
+  + esTiroDe(jugador : Jugador) : boolean
+  + getTirador() : Jugador
+  + getNombreTiro() : String
+  + getSenuelos() : List<Balon>
+  + estaAlAlcanceDe(pateador : Jugador) : boolean
+  + serPateado(pateador : Jugador) : void
+  + aComandoDibujo() : ComandoDibujo
+  + reiniciar(x : double, y : double) : void
+  + getX() : double
+  + getY() : double
+  + getRadio() : int
+  + getVelocidad() : double
+  + getVelocidadX() : double
+  + getVelocidadY() : double
+
+======================================================================
+BalonFalso
+  (hereda de Balon)
+======================================================================
+ATRIBUTOS
+  - original : Balon
+OPERACIONES
+  + BalonFalso(original : Balon, x : double, y : double)
+  + aComandoDibujo() : ComandoDibujo
+  + serPateado(pateador : Jugador) : void
+
+======================================================================
+Camerun
+  (hereda de Personaje)
+======================================================================
+ATRIBUTOS
+  + NOMBRE_TIRO : String = "Rayo"   [Static]
+  + VELOCIDAD_TIRO : double = 1050   [Static]
+  - COLORES : Color[]   [Static]
+OPERACIONES
+  + Camerun()
+  + tiroDePoder(balon : Balon, tirador : Jugador) : void
+  + aplicarEfecto(rival : Jugador) : void
+  + getColores() : Color[]
+
+======================================================================
+Cancha
+  (implementa Dibujable)
+======================================================================
+ATRIBUTOS
+  + ALTO_PISO : int = 40   [Static]
+  + GRAVEDAD : double = 900   [Static]
+  - ancho : int
+  - alto : int
+  - nivelPiso : int
+  - arcoIzquierdo : Arco
+  - arcoDerecho : Arco
+OPERACIONES
+  + Cancha(ancho : int, alto : int)
+  + aComandoDibujo() : ComandoDibujo
+  + getGravedad() : double
+  + getNivelPiso() : int
+  + getAncho() : int
+  + getAlto() : int
+  + getArcoIzquierdo() : Arco
+  + getArcoDerecho() : Arco
+
+======================================================================
+ConstantesJuego
+======================================================================
+ATRIBUTOS
+  + ANCHO_CANCHA : int = 1280   [Static]
+  + ALTO_CANCHA : int = 720   [Static]
+  + DISTANCIA_INICIAL : double = 200   [Static]
+  + ALTURA_SAQUE : double = 100   [Static]
+  + PUNTOS_GANADOR : int = 100   [Static]
+  + PUNTOS_PERDEDOR : int = 25   [Static]
+  + PASOS_POR_SEGUNDO : int = 60   [Static]
+OPERACIONES
+  - ConstantesJuego()
+
+======================================================================
+<<interface>> ControlPartido
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + actualizar(segundos : double) : void   [Abstract]
+  + moverJugador(numero : int, direccion : Direccion) : void   [Abstract]
+  + saltarJugador(numero : int) : void   [Abstract]
+  + patearJugador(numero : int) : void   [Abstract]
+  + pausar() : void   [Abstract]
+  + terminar() : void   [Abstract]
+  + estaPausado() : boolean   [Abstract]
+  + estaTerminado() : boolean   [Abstract]
+
+======================================================================
+CoreaDelSur
+  (hereda de Personaje)
+======================================================================
+ATRIBUTOS
+  + NOMBRE_TIRO : String = "Aura Azul"   [Static]
+  + VELOCIDAD_TIRO : double = 1300   [Static]
+  - COLORES : Color[]   [Static]
+OPERACIONES
+  + CoreaDelSur()
+  + tiroDePoder(balon : Balon, tirador : Jugador) : void
+  + aplicarEfecto(rival : Jugador) : void
+  + getColores() : Color[]
+
+======================================================================
+DOPOSoccer
+  (implementa ControlPartido)
+======================================================================
+ATRIBUTOS
+  + PRECIO_INICIAL : int = 25   [Static]
+  - instancia : DOPOSoccer   [Static]
+  - partido : Partido
+  - puntos : int[]
+  - estadisticas : Estadisticas[]
+  - repositorio : RepositorioPartida
+OPERACIONES
+  - DOPOSoccer()
+  + getInstance() : DOPOSoccer   [Static]
+  + reiniciar() : void
+  + iniciarPartido(pais1 : Pais, pais2 : Pais, modo : Partido.ModoJuego, valor : int) : void
+  + iniciarPartido(pais1 : Pais, pais2 : Pais, modo : Partido.ModoJuego, valor : int, perfil : PerfilMaquina) : void
+  + iniciarPartido(pais1 : Pais, pais2 : Pais, modo : Partido.ModoJuego, valor : int, modalidad : Modalidad, perfil : PerfilMaquina) : void
+  + cambiarEstrategia(perfil : PerfilMaquina) : void
+  + esContraMaquina() : boolean
+  + getModalidad() : Modalidad
+  + getPerfilMaquina() : PerfilMaquina
+  + guardar(archivo : File) : void
+  + abrir(archivo : File) : void
+  + getPuntos(numero : int) : int
+  + getEstadisticas(numero : int) : Estadisticas
+  + getPrecioMejora(numero : int) : int
+  + mejorarEstadistica(numero : int, estadistica : Estadistica) : void
+  + actualizar(segundos : double) : void
+  + moverJugador(numero : int, direccion : Direccion) : void
+  + saltarJugador(numero : int) : void
+  + patearJugador(numero : int) : void
+  + activarPoder(numero : int) : void
+  + pausar() : void
+  + terminar() : void
+  + hayPartido() : boolean
+  + estaPausado() : boolean
+  + estaTerminado() : boolean
+  + getEstadoJugador(numero : int) : EstadoJugador
+  + getNumeroGanador() : int
+  + getComandosDibujo() : List<ComandoDibujo>
+  + getTextoTiempo() : String
+  + getTirosDePoder() : int
+  ~ getPartido() : Partido
+  ~ restaurar(puntosGuardados : int[], estadisticasGuardadas : Estadisticas[], guardado : Partido) : void
+  - prepararJugadores(nuevo : Partido) : void
+  - guardarPuntos() : void
+  - validarPartido() : void
+  - validarExistePartido() : void
+  - validarNumero(numero : int) : void
+
+======================================================================
+DOPOSoccerException
+  (hereda de Exception)
+======================================================================
+ATRIBUTOS
+  + JUGADOR_INVALIDO : String = "El número de jugador debe ser 1 o 2."   [Static]
+  + PARTIDO_TERMINADO : String = "No hay un partido en curso."   [Static]
+  + PAIS_INVALIDO : String = "El país seleccionado no existe. Opciones: Corea del Sur, Camerún, Nigeria, Estados Unidos."   [Static]
+  + PERFIL_INVALIDO : String = "El perfil de la máquina no existe."   [Static]
+  + NO_HAY_MAQUINA : String = "Este partido no es contra la máquina."   [Static]
+  + VALOR_INVALIDO : String = "Debe elegir un modo de juego (por tiempo o por goles) y el valor debe ser mayor que cero."   [Static]
+  + DIRECCION_INVALIDA : String = "Debe indicar una dirección: izquierda o derecha."   [Static]
+  + PUNTOS_INSUFICIENTES : String = "El jugador no tiene puntos suficientes para esta mejora."   [Static]
+  + PARTIDO_EN_CURSO : String = "No se puede hacer esto mientras hay un partido en curso."   [Static]
+  + ESTADISTICA_MAXIMA : String = "La estadística no existe o ya está en su valor máximo (10)."   [Static]
+  + ESTADISTICA_INVALIDA : String = "Las estadísticas deben estar entre 1 y 10."   [Static]
+  + ARCHIVO_NO_GUARDADO : String = "No se pudo guardar la partida en el archivo."   [Static]
+  + ARCHIVO_NO_ABIERTO : String = "No se pudo abrir el archivo de la partida."   [Static]
+  + ARCHIVO_INVALIDO : String = "El archivo no es una partida válida de DOPOSoccer."   [Static]
+OPERACIONES
+  + DOPOSoccerException(message : String)
+  + DOPOSoccerException(message : String, causa : Throwable)
+
+======================================================================
+<<interface>> Dibujable
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + aComandoDibujo() : ComandoDibujo   [Abstract]
+
+======================================================================
+<<enumeration>> Direccion
+======================================================================
+LITERALES
+  IZQUIERDA, DERECHA
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  - Direccion()
+
+======================================================================
+<<enumeration>> Efecto
+======================================================================
+LITERALES
+  NINGUNO, EMPUJE, ELECTROCUTADO, INCONSCIENTE, CONFUSION
+ATRIBUTOS
+  - nombre : String
+  - mueve : boolean
+  - salta : boolean
+  - patea : boolean
+  - factorVelocidad : double
+OPERACIONES
+  ~ Efecto(nombre : String, mueve : boolean, salta : boolean, patea : boolean, factorVelocidad : double)
+  + permiteMoverse() : boolean
+  + permiteSaltar() : boolean
+  + permitePatear() : boolean
+  + getFactorVelocidad() : double
+  + getNombre() : String
+
+======================================================================
+<<enumeration>> Estadistica
+======================================================================
+LITERALES
+  SPEED, KICK, JUMP, SURVIVAL
+ATRIBUTOS
+  - nombre : String
+OPERACIONES
+  ~ Estadistica(nombre : String)
+  + getNombre() : String
+  + toString() : String
+
+======================================================================
+Estadisticas
+  (implementa Mejorable)
+======================================================================
+ATRIBUTOS
+  + MINIMO : int = 1   [Static]
+  + MAXIMO : int = 10   [Static]
+  + VELOCIDAD_BASE : double = 4   [Static]
+  + SALTO_BASE : double = 480   [Static]
+  - speed : int
+  - kick : int
+  - jump : int
+  - survival : int
+OPERACIONES
+  + Estadisticas()
+  + Estadisticas(speed : int, kick : int, jump : int, survival : int)
+  + copiar() : Estadisticas
+  + getMultiplicadorKick() : double
+  + getVidaMax() : double
+  + getVelocidad() : double
+  + getFuerzaSalto() : double
+  + mejorar(estadistica : Estadistica) : void
+  + getValor(estadistica : Estadistica) : int
+  + getMejorasCompradas() : int
+  - subir(valor : int) : int
+  + getSpeed() : int
+  + getKick() : int
+  + getJump() : int
+  + getSurvival() : int
+
+======================================================================
+EstadosUnidos
+  (hereda de Personaje)
+======================================================================
+ATRIBUTOS
+  + NOMBRE_TIRO : String = "Ilusión"   [Static]
+  + VELOCIDAD_TIRO : double = 850   [Static]
+  + BALONES_FALSOS : int = 7   [Static]
+  - COLORES : Color[]   [Static]
+OPERACIONES
+  + EstadosUnidos()
+  + tiroDePoder(balon : Balon, tirador : Jugador) : void
+  + aplicarEfecto(rival : Jugador) : void
+  + getColores() : Color[]
+  + tieneRayas() : boolean
+
+======================================================================
+<<interface>> EstrategiaMaquina
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion   [Abstract]
+  + getPerfil() : PerfilMaquina   [Abstract]
+
+======================================================================
+FormatoArchivoException
+  (hereda de DOPOSoccerException)
+======================================================================
+ATRIBUTOS
+  - archivo : String
+  - razon : String
+OPERACIONES
+  + FormatoArchivoException(archivo : String, mensaje : String, razon : String)
+  + getArchivo() : String
+  + getRazon() : String
+  + toString() : String
+
+======================================================================
+<<interface>> Golpeable
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + recibirDanio(danio : double) : void   [Abstract]
+  + getVida() : double   [Abstract]
+  + getVidaMax() : double   [Abstract]
+  + estaAturdido() : boolean   [Abstract]
+
+======================================================================
+<<interface>> Interactuable
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + interactuar(balon : Balon, partido : Partido) : void   [Abstract]
+
+======================================================================
+Jugador
+  (implementa Movible, Dibujable, Interactuable, Pateable, Golpeable)
+======================================================================
+ATRIBUTOS
+  + RADIO : int = 25   [Static]
+  + ALCANCE_PIE : double = 20   [Static]
+  + DANIO_PATADA : double = 10   [Static]
+  + TIEMPO_ATURDIDO : double = 3   [Static]
+  + FUERZA_PATADA_X : double = 550   [Static]
+  + FUERZA_PATADA_Y : double = 380   [Static]
+  + DURACION_PATADA : double = 0.25   [Static]
+  + DURACION_GOLPE : double = 0.4   [Static]
+  + VELOCIDAD_MINIMA_CABEZAZO : double = 300   [Static]
+  + SEGUNDOS_BARRA : double = 10   [Static]
+  + AUMENTO_GOL_RECIBIDO : double = 0.25   [Static]
+  + VELOCIDAD_EMPUJE : double = 600   [Static]
+  + IMPULSO_INCONSCIENTE : double = 650   [Static]
+  + CUELLO : int = 5   [Static]
+  + LARGO_PIE : int = 14   [Static]
+  + ALTO_PIE : int = 10   [Static]
+  + REBOTE_CUERPO : double = 0.6   [Static]
+  - numero : int
+  - personaje : Personaje
+  - estadisticas : Estadisticas
+  - x : double
+  - y : double
+  - velocidadY : double
+  - enSuelo : boolean
+  - mirandoDerecha : boolean
+  - goles : int
+  - vida : double
+  - aturdido : boolean
+  - tiempoAturdido : double
+  - puntos : int
+  - tiempoPatada : double
+  - tiempoGolpe : double
+  - barraPoder : double
+  - conPoder : boolean
+  - efecto : Efecto
+  - tiempoEfecto : double
+OPERACIONES
+  + Jugador(numero : int, personaje : Personaje, x : double, y : double)
+  + moverIzquierda() : void
+  + moverDerecha() : void
+  + saltar() : void
+  + patear(balon : Balon, rival : Jugador) : void
+  + estaAlAlcanceDe(pateador : Jugador) : boolean
+  + serPateado(pateador : Jugador) : void
+  + interactuar(balon : Balon, partido : Partido) : void
+  - chocarConCabeza(balon : Balon) : boolean
+  + chocarConCuerpo(balon : Balon) : boolean
+  - chocarConRectangulo(balon : Balon, izquierda : double, arriba : double, derecha : double, abajo : double) : boolean
+  + aComandoDibujo() : ComandoDibujo
+  + tocaBalon(balon : Balon) : boolean
+  + alcanzaRival(rival : Jugador) : boolean
+  + recibirDanio(danio : double) : void
+  + anotarGol() : void
+  + sumarPuntos(cantidad : int) : void
+  + jugar(partido : Partido) : void
+  + aEstado() : EstadoJugador
+  + getNombrePerfil() : String
+  + esMaquina() : boolean
+  + mover(segundos : double, cancha : Cancha) : void
+  + desplazar(dx : double, cancha : Cancha) : void
+  + setEstadisticas(estadisticas : Estadisticas) : void
+  + setGoles(goles : int) : void
+  + reiniciar(x : double, y : double) : void
+  + activarPoder() : boolean
+  + usarPoder() : boolean
+  + aumentarBarra(fraccion : double) : void
+  + setBarraPoder(barra : double) : void
+  + recibirTiro(tirador : Jugador) : void
+  + recibirEfecto(nuevo : Efecto, duracion : double) : void
+  + tocaCuerpo(balon : Balon) : boolean
+  - haciaMiArco() : int
+  + tienePoder() : boolean
+  + getBarraPoder() : double
+  + getEfecto() : Efecto
+  + getNumero() : int
+  + getGoles() : int
+  + getVida() : double
+  + getPersonaje() : Personaje
+  + getEstadisticas() : Estadisticas
+  + getPuntos() : int
+  + estaAturdido() : boolean
+  + getX() : double
+  + getY() : double
+  + getRadio() : int
+  + getVelocidad() : double
+  + estaEnSuelo() : boolean
+  + estaMirandoDerecha() : boolean
+  + getPais() : Pais
+  + getVidaMax() : double
+  + estaPateando() : boolean
+  + getTiempoPatada() : double
+  + estaGolpeado() : boolean
+  + getTiempoGolpe() : double
+
+======================================================================
+Log
+======================================================================
+ATRIBUTOS
+  + NOMBRE : String = "DOPOSoccer"   [Static]
+  - LOGGER : Logger   [Static]
+  - preparado : boolean   [Static]
+OPERACIONES
+  - Log()
+  + record(e : Exception) : void   [Static]
+  - preparar() : void   [Static]
+
+======================================================================
+Maquina
+  (hereda de Jugador)
+======================================================================
+ATRIBUTOS
+  + TOLERANCIA : double = 6   [Static]
+  - estrategia : EstrategiaMaquina
+OPERACIONES
+  + Maquina(numero : int, personaje : Personaje, x : double, y : double, estrategia : EstrategiaMaquina)
+  + jugar(partido : Partido) : void
+  + ejecutar(accion : Accion, partido : Partido) : void
+  + accionHacia(objetivoX : double) : Accion
+  + getSentidoAtaque() : int
+  + miraHaciaAtaque() : boolean
+  + accionHaciaAtaque() : Accion
+  + setEstrategia(estrategia : EstrategiaMaquina) : void
+  + getEstrategia() : EstrategiaMaquina
+  + esMaquina() : boolean
+  + getNombrePerfil() : String
+
+======================================================================
+MaquinaDefensiva
+  (implementa EstrategiaMaquina)
+======================================================================
+ATRIBUTOS
+  + DISTANCIA_ARCO : double = 150   [Static]
+  - despeje : MaquinaOfensiva
+OPERACIONES
+  + MaquinaDefensiva()
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion
+  + estaEnSuMitad(maquina : Maquina, x : double, ancho : int) : boolean
+  + posicionDefensa(maquina : Maquina, ancho : int) : double
+  + getPerfil() : PerfilMaquina
+
+======================================================================
+MaquinaEquilibrada
+  (implementa EstrategiaMaquina)
+======================================================================
+ATRIBUTOS
+  - ataque : MaquinaOfensiva
+  - defensa : MaquinaDefensiva
+OPERACIONES
+  + MaquinaEquilibrada()
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion
+  + vaGanando(maquina : Maquina, partido : Partido) : boolean
+  + getPerfil() : PerfilMaquina
+
+======================================================================
+MaquinaExperta
+  (implementa EstrategiaMaquina)
+======================================================================
+ATRIBUTOS
+  + BALON_LEJOS : double = 150   [Static]
+  + VELOCIDAD_PELIGRO : double = 200   [Static]
+  - ataque : MaquinaOfensiva
+  - defensa : MaquinaDefensiva
+OPERACIONES
+  + MaquinaExperta()
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion
+  + getPerfil() : PerfilMaquina
+
+======================================================================
+MaquinaOfensiva
+  (implementa EstrategiaMaquina)
+======================================================================
+ATRIBUTOS
+  + ALTURA_CABEZAZO : double = 60   [Static]
+  + DISTANCIA_CABEZAZO : double = 70   [Static]
+OPERACIONES
+  + MaquinaOfensiva()
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion
+  + debeCabecear(maquina : Maquina, balon : Balon) : boolean
+  + getPerfil() : PerfilMaquina
+
+======================================================================
+MaquinaTorpe
+  (implementa EstrategiaMaquina)
+======================================================================
+ATRIBUTOS
+  - azar : Random
+OPERACIONES
+  + MaquinaTorpe()
+  + MaquinaTorpe(semilla : long)
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion
+  + getPerfil() : PerfilMaquina
+
+======================================================================
+<<interface>> Mejorable
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + mejorar(estadistica : Estadistica) : void   [Abstract]
+  + getValor(estadistica : Estadistica) : int   [Abstract]
+  + getMejorasCompradas() : int   [Abstract]
+
+======================================================================
+<<enumeration>> Modalidad
+======================================================================
+LITERALES
+  JUGADOR_VS_JUGADOR, JUGADOR_VS_MAQUINA
+ATRIBUTOS
+  - nombre : String
+  - maquina : boolean
+OPERACIONES
+  ~ Modalidad(nombre : String, maquina : boolean)
+  + tieneMaquina() : boolean
+  + getNombre() : String
+  + toString() : String
+
+======================================================================
+<<interface>> Movible
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + mover(segundos : double, cancha : Cancha) : void   [Abstract]
+  + reiniciar(x : double, y : double) : void   [Abstract]
+  + getX() : double   [Abstract]
+  + getY() : double   [Abstract]
+  + getVelocidad() : double   [Abstract]
+  + getRadio() : int   [Abstract]
+
+======================================================================
+Nigeria
+  (hereda de Personaje)
+======================================================================
+ATRIBUTOS
+  + NOMBRE_TIRO : String = "Tornado"   [Static]
+  + VELOCIDAD_TIRO : double = 800   [Static]
+  - COLORES : Color[]   [Static]
+OPERACIONES
+  + Nigeria()
+  + tiroDePoder(balon : Balon, tirador : Jugador) : void
+  + aplicarEfecto(rival : Jugador) : void
+  + getColores() : Color[]
+
+======================================================================
+<<enumeration>> Pais
+======================================================================
+LITERALES
+  COREA_DEL_SUR, CAMERUN, NIGERIA, ESTADOS_UNIDOS
+ATRIBUTOS
+  - nombre : String
+  - fabrica : Supplier<Personaje>
+OPERACIONES
+  ~ Pais(nombre : String, fabrica : Supplier<Personaje>)
+  + crearPersonaje() : Personaje
+  + getNombre() : String
+  + desdeTexto(texto : String) : Pais   [Static]
+  + toString() : String
+
+======================================================================
+<<abstract>> Partido
+  (implementa ControlPartido)
+======================================================================
+ATRIBUTOS
+  - cancha : Cancha
+  - balon : Balon
+  - jugadores : Jugador[]
+  - tiempoJugado : double
+  - pausado : boolean
+  - terminado : boolean
+OPERACIONES
+  + Partido(pais1 : Pais, pais2 : Pais)
+  + ponerMaquina(estrategia : EstrategiaMaquina) : void
+  + actualizar(segundos : double) : void
+  + moverJugador(numero : int, direccion : Direccion) : void
+  + saltarJugador(numero : int) : void
+  + patearJugador(numero : int) : void
+  + activarPoder(numero : int) : void
+  + getBalonPara(jugador : Jugador) : Balon
+  + registrarGol(arco : Arco) : void
+  + reiniciarPosiciones() : void
+  + pausar() : void
+  + terminar() : void
+  + hayGanador() : boolean   [Abstract]
+  + getTextoTiempo() : String   [Abstract]
+  + getModo() : ModoJuego   [Abstract]
+  + getValor() : int   [Abstract]
+  + restaurar(goles1 : int, goles2 : int, tiempo : double) : void
+  + getMovibles() : List<Movible>
+  + getInteractuables() : List<Interactuable>
+  + getDibujables() : List<Dibujable>
+  + getRival(jugador : Jugador) : Jugador
+  + getMaquina() : Maquina
+  # getGolesMaximos() : int
+  + getGanador() : Jugador
+  + getJugador(numero : int) : Jugador
+  + getBalon() : Balon
+  + getCancha() : Cancha
+  + estaTerminado() : boolean
+  + estaPausado() : boolean
+  + getTiempoJugado() : double
+  # formato(segundos : double) : String
+  - separarJugadores() : void
+  - finalizar() : void
+
+======================================================================
+<<enumeration>> Partido::ModoJuego
+  (clase interna de Partido)
+======================================================================
+LITERALES
+  POR_TIEMPO, POR_GOLES
+ATRIBUTOS
+  - nombre : String
+OPERACIONES
+  ~ ModoJuego(nombre : String)
+  + crearPartido(pais1 : Pais, pais2 : Pais, valor : int) : Partido
+  + desdeTexto(texto : String) : ModoJuego   [Static]
+  + getNombre() : String
+  + toString() : String
+
+======================================================================
+PartidoDAO
+  (implementa RepositorioPartida)
+======================================================================
+ATRIBUTOS
+  + EXTENSION : String = ".txt"   [Static]
+  + ENCABEZADO : String = "# Partida de DOPOSoccer"   [Static]
+  + SIN_MAQUINA : String = "NINGUNO"   [Static]
+  - CLAVE_ARCHIVO : String = "#archivo"   [Static]
+  - instancia : PartidoDAO   [Static]
+OPERACIONES
+  - PartidoDAO()
+  + getInstance() : PartidoDAO   [Static]
+  + guardar(juego : DOPOSoccer, archivo : File) : void
+  + abrir(juego : DOPOSoccer, archivo : File) : void
+  - leer(archivo : File) : Map<String, String>
+  - valor(datos : Map<String, String>, clave : String) : String
+  - entero(datos : Map<String, String>, clave : String) : int
+  - decimal(datos : Map<String, String>, clave : String) : double
+  - estadisticas(datos : Map<String, String>, clave : String) : Estadisticas
+  - invalido(datos : Map<String, String>, razon : String) : FormatoArchivoException
+  - aTexto(e : Estadisticas) : String
+  - conExtension(archivo : File) : File
+
+======================================================================
+PartidoPorGoles
+  (hereda de Partido)
+======================================================================
+ATRIBUTOS
+  - golesParaGanar : int
+OPERACIONES
+  + PartidoPorGoles(pais1 : Pais, pais2 : Pais, goles : int)
+  + hayGanador() : boolean
+  + getGolesParaGanar() : int
+  + getTextoTiempo() : String
+  + getModo() : ModoJuego
+  + getValor() : int
+
+======================================================================
+PartidoPorTiempo
+  (hereda de Partido)
+======================================================================
+ATRIBUTOS
+  - duracion : double
+OPERACIONES
+  + PartidoPorTiempo(pais1 : Pais, pais2 : Pais, minutos : int)
+  + hayGanador() : boolean
+  - seAcaboElTiempo() : boolean
+  + getTiempoRestante() : double
+  + estaEnMuerteSubita() : boolean
+  + getTextoTiempo() : String
+  + getModo() : ModoJuego
+  + getValor() : int
+
+======================================================================
+<<interface>> Pateable
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + estaAlAlcanceDe(pateador : Jugador) : boolean   [Abstract]
+  + serPateado(pateador : Jugador) : void   [Abstract]
+
+======================================================================
+<<enumeration>> PerfilMaquina
+======================================================================
+LITERALES
+  TORPE, OFENSIVA, DEFENSIVA, EXPERTA, EQUILIBRADA
+ATRIBUTOS
+  - nombre : String
+OPERACIONES
+  ~ PerfilMaquina(nombre : String)
+  + crearEstrategia() : EstrategiaMaquina
+  + desdeTexto(texto : String) : PerfilMaquina   [Static]
+  + getNombre() : String
+  + toString() : String
+
+======================================================================
+PersistenciaException
+  (hereda de DOPOSoccerException)
+======================================================================
+ATRIBUTOS
+  - operacion : String
+OPERACIONES
+  + PersistenciaException(operacion : String, mensaje : String, causa : Throwable)
+  + getOperacion() : String
+
+======================================================================
+<<abstract>> Personaje
+  (implementa PoderEspecial)
+======================================================================
+ATRIBUTOS
+  - pais : Pais
+  - danioTiro : int
+  - duracionEfecto : double
+OPERACIONES
+  + Personaje(pais : Pais, danioTiro : int, duracionEfecto : double)
+  + crear(pais : Pais) : Personaje   [Static]
+  + getColores() : Color[]   [Abstract]
+  + tieneRayas() : boolean
+  + tiroDePoder(balon : Balon, tirador : Jugador) : void   [Abstract]
+  + aplicarEfecto(rival : Jugador) : void   [Abstract]
+  + getPais() : Pais
+  + getDanioTiro() : int
+  + getDuracionEfecto() : double
+
+======================================================================
+<<interface>> PoderEspecial
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + tiroDePoder(balon : Balon, tirador : Jugador) : void   [Abstract]
+  + aplicarEfecto(rival : Jugador) : void   [Abstract]
+  + getDanioTiro() : int   [Abstract]
+  + getDuracionEfecto() : double   [Abstract]
+
+======================================================================
+<<interface>> RepositorioPartida
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + guardar(juego : DOPOSoccer, archivo : File) : void   [Abstract]
+  + abrir(juego : DOPOSoccer, archivo : File) : void   [Abstract]
+
+######################################################################
+PAQUETE dto
+######################################################################
+
+======================================================================
+ComandoDibujo
+======================================================================
+ATRIBUTOS
+  + forma : Forma
+  + x : int
+  + y : int
+  + ancho : int
+  + alto : int
+  + numero : int
+  + colorCabeza : Color
+  + colorBanda : Color
+  + colorCuerpo : Color
+  + rayas : boolean
+  + etiqueta : String
+  + haciaDerecha : boolean
+  + avancePatada : double
+  + aturdido : boolean
+  + avanceGolpe : double
+  + aura : boolean
+  + efecto : String
+OPERACIONES
+  + ComandoDibujo(forma : Forma, x : int, y : int, ancho : int, alto : int, haciaDerecha : boolean)
+  + ComandoDibujo(forma : Forma, x : int, y : int, ancho : int, alto : int, tiro : String)
+  + ComandoDibujo(forma : Forma, x : int, y : int, ancho : int, alto : int, numero : int, colores : Color[], rayas : boolean, etiqueta : String, haciaDerecha : boolean, avancePatada : double, aturdido : boolean, avanceGolpe : double, aura : boolean, efecto : String)
+
+======================================================================
+<<enumeration>> ComandoDibujo::Forma
+  (clase interna de ComandoDibujo)
+======================================================================
+LITERALES
+  CANCHA, ARCO, BALON, JUGADOR
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  - Forma()
+
+======================================================================
+EstadoJugador
+======================================================================
+ATRIBUTOS
+  + numero : int
+  + pais : String
+  + colores : Color[]
+  + goles : int
+  + vida : double
+  + vidaMax : double
+  + aturdido : boolean
+  + maquina : boolean
+  + perfil : String
+  + barraPoder : double
+  + conPoder : boolean
+  + efecto : String
+OPERACIONES
+  + EstadoJugador(numero : int, pais : String, colores : Color[], goles : int, vida : double, vidaMax : double, aturdido : boolean, maquina : boolean, perfil : String, barraPoder : double, conPoder : boolean, efecto : String)
+
+######################################################################
+PAQUETE presentation
+######################################################################
+
+======================================================================
+BotonRedondeado
+  (hereda de JButton)
+======================================================================
+ATRIBUTOS
+  - colorBase : Color
+  - colorHover : Color
+  - encima : boolean
+OPERACIONES
+  + BotonRedondeado(texto : String, colorBase : Color, colorHover : Color)
+  - prepareController() : void
+  # paintComponent(g : Graphics) : void
+  + estaEncima() : boolean
+
+======================================================================
+CicloJuego
+======================================================================
+ATRIBUTOS
+  + SEGUNDOS_POR_PASO : double = 1.0 / ConstantesJuego.PASOS_POR_SEGUNDO   [Static]
+  + MAX_PASOS_POR_CUADRO : int = 5   [Static]
+  + DURACION_CAMARA_LENTA : double = 0.6   [Static]
+  + FACTOR_CAMARA_LENTA : double = 0.3   [Static]
+  + MILISEGUNDOS_POR_CUADRO : int = 1000 / ConstantesJuego.PASOS_POR_SEGUNDO   [Static]
+  - timer : Timer
+  - vista : VistaPrincipal
+  - ultimoTiempo : long
+  - acumulado : double
+  - corriendo : boolean
+  - tiempoLento : double
+OPERACIONES
+  + CicloJuego(vista : VistaPrincipal)
+  - cuadro() : void
+  + iniciar() : void
+  + detener() : void
+  + estaCorriendo() : boolean
+  + iniciarCamaraLenta() : void
+  + tiempoDeJuego(segundos : double) : double
+  + getCamaraLenta() : double
+
+======================================================================
+DOPOSoccerGUI
+  (hereda de JFrame; implementa VistaPrincipal)
+======================================================================
+ATRIBUTOS
+  + TAMANO_MENU : Dimension   [Static]
+  - dominio : DOPOSoccer
+  - tarjetas : CardLayout
+  - principal : JPanel
+  - panelInicio : PanelInicio
+  - panelInstrucciones : PanelInstrucciones
+  - panelJugadores : PanelJugadores
+  - panelConfiguracion : PanelConfiguracion
+  - panelCancha : PanelCancha
+  - ciclo : CicloJuego
+  - tirosVistos : int
+  - teclasPresionadas : Set<Integer>
+  - itemNuevo : JMenuItem
+  - itemAbrir : JMenuItem
+  - itemGuardar : JMenuItem
+  - itemEstrategia : JMenuItem
+  - selectorArchivo : JFileChooser
+  - itemPausa : JMenuItem
+  - itemTerminar : JMenuItem
+  - itemSalir : JMenuItem
+  - itemMusica : JCheckBoxMenuItem
+  - musica : Musica
+OPERACIONES
+  - DOPOSoccerGUI()
+  - prepareView() : void
+  - prepareViewMenu() : void
+  - prepareController() : void
+  - prepareControllerPausa() : void
+  + mostrarInicio() : void
+  + mostrarInstrucciones() : void
+  + mostrarConfiguracion() : void
+  + confirmarConfiguracion() : void
+  + iniciarPartido() : void
+  + pasoDeJuego(segundos : double) : void
+  + refrescar() : void
+  + detenerCiclo() : void
+  - mostrarMenu(pantalla : Pantalla) : void
+  - mostrarJugadores() : void
+  - mostrarCancha(enPausa : boolean) : void
+  - teclaPresionadaAction(codigo : int, ubicacion : int) : void
+  - finAction() : void
+  - pausaAction() : void
+  - terminarAction() : void
+  - nuevoAction() : void
+  - volverMenuAction() : void
+  - guardarAction() : void
+  - abrirAction() : void
+  - cambiarEstrategiaAction() : void
+  - musicaAction() : void
+  - actualizarMusica() : void
+  - salirAction() : void
+  + main(args : String[]) : void   [Static]
+
+======================================================================
+<<enumeration>> DOPOSoccerGUI::Pantalla
+  (clase interna de DOPOSoccerGUI)
+======================================================================
+LITERALES
+  INICIO, INSTRUCCIONES, CONFIGURACION, JUGADORES, CANCHA
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  - Pantalla()
+
+======================================================================
+Estilo
+======================================================================
+ATRIBUTOS
+  + FONDO_ARRIBA : Color   [Static]
+  + FONDO_ABAJO : Color   [Static]
+  + PRIMARIO : Color   [Static]
+  + PRIMARIO_HOVER : Color   [Static]
+  + SECUNDARIO : Color   [Static]
+  + SECUNDARIO_HOVER : Color   [Static]
+  + PELIGRO : Color   [Static]
+  + PELIGRO_HOVER : Color   [Static]
+  + DESACTIVADO : Color   [Static]
+  + ACENTO : Color   [Static]
+  + TEXTO_CLARO : Color = Color.WHITE   [Static]
+  + TEXTO_OSCURO : Color   [Static]
+  + TARJETA : Color   [Static]
+  + CAMPO : Color   [Static]
+  + FONDO_PAUSA : Color   [Static]
+  + CIELO : Color   [Static]
+  + CIELO_ABAJO : Color   [Static]
+  + PASTO : Color   [Static]
+  + PASTO_OSCURO : Color   [Static]
+  + COLOR_J1 : Color   [Static]
+  + COLOR_J2 : Color   [Static]
+  + COLORES_ATURDIDO : Color[]   [Static]
+  + VIDA : Color   [Static]
+  + SANGRE : Color   [Static]
+  + SOMBRA : Color   [Static]
+  + BRILLO : Color   [Static]
+  + FONDO_MARCADOR : Color   [Static]
+  + OSCURECER_PAUSA : Color   [Static]
+  + TRAZO_BORDE : BasicStroke   [Static]
+  + TRAZO_HOVER : BasicStroke   [Static]
+  + FAMILIA_TITULO : String   [Static]
+  + FAMILIA_TEXTO : String   [Static]
+  + TITULO_GRANDE : Font   [Static]
+  + TITULO : Font   [Static]
+  + SUBTITULO : Font   [Static]
+  + BOTON : Font   [Static]
+  + TEXTO : Font   [Static]
+  + TEXTO_PEQUENO : Font   [Static]
+  + REDONDEO : int = 22   [Static]
+OPERACIONES
+  - Estilo()
+  - elegirFamilia(familias : String...) : String   [Static]
+  + pintarFondo(g : Graphics, ancho : int, alto : int) : void   [Static]
+  + crearTitulo(texto : String) : JLabel   [Static]
+  + crearEtiqueta(texto : String) : JLabel   [Static]
+  + crearBoton(texto : String) : BotonRedondeado   [Static]
+  + crearBotonSecundario(texto : String) : BotonRedondeado   [Static]
+  + crearBotonPeligro(texto : String) : BotonRedondeado   [Static]
+  + estilizarCombo(combo : JComboBox<?>) : void   [Static]
+  + estilizarCampo(campo : JTextField) : void   [Static]
+  + bordeCampo(color : Color) : Border   [Static]
+  - agregarHover(origen : Component, destino : JComponent) : void   [Static]
+
+======================================================================
+IconoInstruccion
+  (hereda de JComponent)
+======================================================================
+ATRIBUTOS
+  + ANCHO_DISENO : int = 260   [Static]
+  + ALTO_DISENO : int = 100   [Static]
+  + TECLA : int = 22   [Static]
+  - FUENTE : Font   [Static]
+  - FUENTE_PEQUENA : Font   [Static]
+  - TRAZO_GRUESO : Stroke   [Static]
+  - TRAZO_PUNTEADO : Stroke   [Static]
+  - TRAZO_NORMAL : Stroke   [Static]
+  - TECLA_FONDO : Color   [Static]
+  - COLORES_TIROS : Color[]   [Static]
+  - tipo : Tipo
+OPERACIONES
+  + IconoInstruccion(tipo : Tipo)
+  + getTipo() : Tipo
+  # paintComponent(g : Graphics) : void
+  - dibujarObjetivo(g : Graphics2D) : void
+  - dibujarControles(g : Graphics2D) : void
+  - dibujarVida(g : Graphics2D) : void
+  - dibujarPoder(g : Graphics2D) : void
+  - dibujarTiros(g : Graphics2D) : void
+  - dibujarPartida(g : Graphics2D) : void
+  - dibujarArquito(g : Graphics2D, x : int, izquierdo : boolean) : void
+  - dibujarDisco(g : Graphics2D, x : int, y : int) : void
+  - cabeza(g : Graphics2D, pais : Pais, x : int, y : int, r : int, derecha : boolean, borde : Color) : void
+  - balon(g : Graphics2D, x : int, y : int, r : int) : void
+  - tecla(g : Graphics2D, x : int, y : int, letra : String, color : Color) : void
+  - leyenda(g : Graphics2D, x : int, y : int, color : Color, texto : String) : void
+  - barra(g : Graphics2D, x : int, y : int, ancho : int, fraccion : double, color : Color) : void
+  - flecha(g : Graphics2D, x1 : int, y1 : int, x2 : int, y2 : int) : void
+  - centrado(g : Graphics2D, texto : String, cx : int, y : int) : void
+
+======================================================================
+<<enumeration>> IconoInstruccion::Tipo
+  (clase interna de IconoInstruccion)
+======================================================================
+LITERALES
+  OBJETIVO, CONTROLES, VIDA, PODER, TIROS, PARTIDA
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  - Tipo()
+
+======================================================================
+Musica
+======================================================================
+ATRIBUTOS
+  + PULSOS_NEGRA : int = 4   [Static]
+  + TEMPO : float = 132   [Static]
+  + CANAL_MELODIA : int = 0   [Static]
+  + CANAL_BAJO : int = 1   [Static]
+  + CANAL_BATERIA : int = 9   [Static]
+  + INSTRUMENTO_MELODIA : int = 80   [Static]
+  + INSTRUMENTO_BAJO : int = 38   [Static]
+  + VOLUMEN : int = 85   [Static]
+  - BOMBO : int = 36   [Static]
+  - CAJA : int = 38   [Static]
+  - PLATILLO : int = 42   [Static]
+  - BAJO : int[]   [Static]
+  - MELODIA : int[]   [Static]
+  - secuenciador : Sequencer
+  - activa : boolean
+OPERACIONES
+  + Musica()
+  - crearCancion() : Sequence
+  - agregarNota(pista : Track, canal : int, nota : int, inicio : int, duracion : int) : void
+  - evento(comando : int, canal : int, dato1 : int, dato2 : int, pulso : long) : MidiEvent
+  + iniciar() : void
+  + detener() : void
+  + alternar() : boolean
+  + cerrar() : void
+  + estaActiva() : boolean
+  + estaDisponible() : boolean
+
+======================================================================
+PanelCancha
+  (hereda de JPanel)
+======================================================================
+ATRIBUTOS
+  + ANCHO_MARCADOR : int = 180   [Static]
+  + ALTO_MARCADOR : int = 60   [Static]
+  + ALTO_INFORMACION : int = 100   [Static]
+  + ANCHO_BARRA : int = 220   [Static]
+  + ALTO_BARRA : int = 14   [Static]
+  + ANCHO_PODER : int = 250   [Static]
+  + ALTO_PODER : int = 26   [Static]
+  + RADIO_CABEZA : int = 28   [Static]
+  + ESPACIO_CABEZA : int = 66   [Static]
+  + Y_PODER : int = 28   [Static]
+  + Y_VIDA : int = 60   [Static]
+  + OSCURO_MAXIMO : int = 140   [Static]
+  + MARGEN : int = 20   [Static]
+  - FUENTE_MARCADOR : Font   [Static]
+  - FUENTE_VIDA : Font   [Static]
+  - PODER_CLARO : Color   [Static]
+  - PODER_MEDIO : Color   [Static]
+  - PODER_ROJO : Color   [Static]
+  - FONDO_PODER : Color   [Static]
+  - TRAZO_BRILLO_PODER : Stroke   [Static]
+  - TRAZO_NORMAL : Stroke   [Static]
+  - FUENTE_TIRO : Font   [Static]
+  - dominio : DOPOSoccer
+  - botonPausa : BotonRedondeado
+  - panelPausa : PanelPausa
+  - tiempoAnimacion : double
+  - oscurecer : double
+OPERACIONES
+  + PanelCancha(dominio : DOPOSoccer)
+  - prepareView() : void
+  + mostrarPausa(visible : boolean) : void
+  + avanzarAnimacion(segundos : double) : void
+  + setOscurecer(nivel : double) : void
+  + getOscurecer() : double
+  + getBotonPausa() : JButton
+  + getPanelPausa() : PanelPausa
+  # paintComponent(g : Graphics) : void
+  - dibujarOscurecido(g : Graphics2D, ancho : int, alto : int) : void
+  - dibujarNombreTiro(g : Graphics2D, tiro : String, ancho : int, alto : int) : void
+  - dibujarEstado(g : Graphics2D, ancho : int, alto : int) : void
+  - dibujarInfoJugador(g : Graphics2D, j : EstadoJugador, borde : int, izquierda : boolean, color : Color) : void
+  - formaFlama(x : int, y : int, puntaDerecha : boolean) : Shape
+  - dibujarFlama(g : Graphics2D, x : int, y : int, fraccion : double, aura : boolean, puntaDerecha : boolean) : void
+  + colorPoder(fraccion : double) : Color   [Static]
+  - mezclar(a : Color, b : Color, t : double) : Color   [Static]
+  - textoPoder(j : EstadoJugador) : String
+  - dibujarBarra(g : Graphics2D, x : int, y : int, fraccion : double, color : Color) : void
+
+======================================================================
+PanelConfiguracion
+  (hereda de PanelDegradado)
+======================================================================
+ATRIBUTOS
+  + VALOR_MINIMO : int = 1   [Static]
+  + VALOR_MAXIMO : int = 99   [Static]
+  + VALOR_INICIAL : int = 2   [Static]
+  - comboModalidad : JComboBox<Modalidad>
+  - comboPerfil : JComboBox<PerfilMaquina>
+  - comboResolucion : JComboBox<Resolucion>
+  - comboModo : JComboBox<Partido.ModoJuego>
+  - selectorValor : JSpinner
+  - botonSiguiente : BotonRedondeado
+  - vista : VistaPrincipal
+OPERACIONES
+  + PanelConfiguracion(vista : VistaPrincipal)
+  - prepareView() : void
+  - prepareController() : void
+  - comboModalidadAction() : void
+  + getModalidad() : Modalidad
+  + esContraMaquina() : boolean
+  + getPerfil() : PerfilMaquina
+  + getModo() : Partido.ModoJuego
+  + getValor() : int
+  + getResolucion() : Dimension
+
+======================================================================
+<<enumeration>> PanelConfiguracion::Resolucion
+  (clase interna de PanelConfiguracion)
+======================================================================
+LITERALES
+  HD, HD_PLUS, FULL_HD
+ATRIBUTOS
+  - ancho : int
+  - alto : int
+OPERACIONES
+  ~ Resolucion(ancho : int, alto : int)
+  + getDimension() : Dimension
+  + toString() : String
+
+======================================================================
+PanelDegradado
+  (hereda de JPanel)
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + PanelDegradado(layout : LayoutManager)
+  # paintComponent(g : Graphics) : void
+
+======================================================================
+PanelInicio
+  (hereda de JPanel)
+======================================================================
+ATRIBUTOS
+  + RADIO_PORTADA : int = 40   [Static]
+  - botonIniciar : BotonRedondeado
+  - botonInstrucciones : BotonRedondeado
+  - vista : VistaPrincipal
+OPERACIONES
+  + PanelInicio(vista : VistaPrincipal)
+  - prepareView() : void
+  - prepareController() : void
+  # paintComponent(g : Graphics) : void
+  - comandoPortada(pais : Pais, numero : int, x : int, y : int, derecha : boolean) : ComandoDibujo
+  - dibujarBanderaCorea(g : Graphics2D, x : int, y : int, w : int, h : int) : void
+  - dibujarBanderaCamerun(g : Graphics2D, x : int, y : int, w : int, h : int) : void
+
+======================================================================
+PanelInstrucciones
+  (hereda de PanelDegradado)
+======================================================================
+ATRIBUTOS
+  - botonVolver : BotonRedondeado
+  - vista : VistaPrincipal
+OPERACIONES
+  + PanelInstrucciones(vista : VistaPrincipal)
+  - prepareView() : void
+  - crearTarjeta(titulo : String, color : Color, tipo : IconoInstruccion.Tipo, texto : String) : PanelTarjeta
+  - nombresPerfiles() : String
+  - prepareController() : void
+
+======================================================================
+PanelJugadores
+  (hereda de PanelDegradado)
+======================================================================
+ATRIBUTOS
+  + CONTROLES_J1 : String = "A D mover, W saltar, S patear, Q poder"   [Static]
+  + CONTROLES_J2 : String = "Flechas mover, arriba saltar, abajo patear, Ctrl der. poder"   [Static]
+  - dominio : DOPOSoccer
+  - comboPais1 : JComboBox<Pais>
+  - comboPais2 : JComboBox<Pais>
+  - etiquetasPuntos : JLabel[]
+  - etiquetasPrecio : JLabel[]
+  - etiquetasValor : JLabel[][]
+  - botonesMejorar : BotonRedondeado[][]
+  - tarjetas : PanelTarjeta[]
+  - etiquetaControles2 : JLabel
+  - botonVolver : BotonRedondeado
+  - botonIniciar : BotonRedondeado
+  - vista : VistaPrincipal
+OPERACIONES
+  + PanelJugadores(dominio : DOPOSoccer, vista : VistaPrincipal)
+  - prepareView() : void
+  - crearGrupo(numero : int, comboPais : JComboBox<Pais>, color : Color, controles : JLabel) : PanelTarjeta
+  - prepareController() : void
+  - mejorarAction(numero : int, estadistica : Estadistica) : void
+  + actualizar() : void
+  + setContraMaquina(contraMaquina : boolean, perfil : PerfilMaquina) : void
+  + getPais1() : Pais
+  + getPais2() : Pais
+
+======================================================================
+PanelPausa
+  (hereda de JPanel)
+======================================================================
+ATRIBUTOS
+  - botonContinuar : BotonRedondeado
+  - botonTerminar : BotonRedondeado
+  - botonGuardar : BotonRedondeado
+  - botonAbrir : BotonRedondeado
+  - botonEstrategia : BotonRedondeado
+  - botonMenu : BotonRedondeado
+  - botonMusica : BotonRedondeado
+OPERACIONES
+  + PanelPausa()
+  - prepareView() : void
+  - prepararBoton(boton : BotonRedondeado) : BotonRedondeado
+  + setContraMaquina(contraMaquina : boolean) : void
+  # paintComponent(g : Graphics) : void
+  + getBotonContinuar() : JButton
+  + getBotonTerminar() : JButton
+  + getBotonGuardar() : JButton
+  + getBotonAbrir() : JButton
+  + getBotonEstrategia() : JButton
+  + getBotonMenu() : JButton
+  + setMusica(activa : boolean, disponible : boolean) : void
+  + getBotonMusica() : JButton
+
+======================================================================
+PanelTarjeta
+  (hereda de JPanel)
+======================================================================
+ATRIBUTOS
+  - titulo : String
+  - color : Color
+OPERACIONES
+  + PanelTarjeta(titulo : String, color : Color, layout : LayoutManager)
+  + setTitulo(titulo : String) : void
+  + getTitulo() : String
+  # paintComponent(g : Graphics) : void
+
+======================================================================
+RenderizadorElementos
+======================================================================
+ATRIBUTOS
+  + GOTAS : int = 5   [Static]
+  + FRANJAS : int = 12   [Static]
+  + SEPARACION_RAYAS : int = 8   [Static]
+  + OJO : int = 12   [Static]
+  + BRILLO : int = 10   [Static]
+  + TRIBUNA_ARRIBA : int = 104   [Static]
+  + NIVELES_TRIBUNA : int = 3   [Static]
+  + ALTO_NIVEL : int = 118   [Static]
+  + SEPARACION_PUBLICO : int = 24   [Static]
+  + ALTO_ANUNCIOS : int = 34   [Static]
+  + VELOCIDAD_ANUNCIOS : int = 110   [Static]
+  + TEXTO_ANUNCIO : String = "DOPOSoccer"   [Static]
+  + ANCHO_ANUNCIO : int = 260   [Static]
+  + SALTO_PUBLICO : int = 9   [Static]
+  + MALLA : int = 10   [Static]
+  + PUNTOS_FLAMA : int = 56   [Static]
+  + ANGULO_PATADA : int = 55   [Static]
+  - TRAZO_NORMAL : Stroke   [Static]
+  - TRAZO_ARCO : Stroke   [Static]
+  - TRAZO_BRILLO_ARCO : Stroke   [Static]
+  - TRAZO_LINEAS : Stroke   [Static]
+  - TRAZO_CABEZA : Stroke   [Static]
+  - TRAZO_EFECTO : Stroke   [Static]
+  - TECHO : Color   [Static]
+  - GRADA_CLARA : Color   [Static]
+  - GRADA_OSCURA : Color   [Static]
+  - ROPA_PUBLICO : Color[]   [Static]
+  - PIEL_PUBLICO : Color[]   [Static]
+  - FONDO_ANUNCIOS : Color   [Static]
+  - COLORES_ANUNCIO : Color[]   [Static]
+  - FUENTE_ANUNCIO : Font   [Static]
+  - LINEAS : Color   [Static]
+  - BORDE_CANCHA : Color   [Static]
+  - SOMBRA : Color   [Static]
+  - FONDO_ARCO_LEJOS : Color   [Static]
+  - FONDO_ARCO_CERCA : Color   [Static]
+  - MALLA_ARCO : Color   [Static]
+  - SOMBRA_POSTE : Color   [Static]
+  - CAPAS_AURA : Color[]   [Static]
+  - CHISPA : Color   [Static]
+  - TIRO_AZUL : Color   [Static]
+  - TIRO_RAYO : Color   [Static]
+  - TIRO_TORNADO : Color   [Static]
+  - TIRO_ILUSION : Color   [Static]
+  - ZAPATO : Color   [Static]
+  - SUELA : Color   [Static]
+OPERACIONES
+  - RenderizadorElementos()
+  + dibujar(g : Graphics2D, c : ComandoDibujo) : void   [Static]
+  + dibujar(g : Graphics2D, c : ComandoDibujo, tiempo : double) : void   [Static]
+  - dibujarCancha(g : Graphics2D, c : ComandoDibujo, tiempo : double) : void   [Static]
+  - dibujarTribuna(g : Graphics2D, ancho : int, tiempo : double) : int   [Static]
+  - mezclarSemilla(columna : int, fila : int) : int   [Static]
+  - dibujarEspectador(g : Graphics2D, x : int, base : int, tam : int, semilla : int, tiempo : double) : void   [Static]
+  - dibujarAnuncios(g : Graphics2D, ancho : int, y : int, tiempo : double) : void   [Static]
+  - dibujarCampo(g : Graphics2D, ancho : int, fondo : int, piso : int) : void   [Static]
+  - proyectar(ancho : int, fondo : int, piso : int, u : double, v : double) : Point2D   [Static]
+  - cuadro(ancho : int, fondo : int, piso : int, u1 : double, v1 : double, u2 : double, v2 : double) : Shape   [Static]
+  - linea(ancho : int, fondo : int, piso : int, u1 : double, v1 : double, u2 : double, v2 : double) : Shape   [Static]
+  - ovalo(ancho : int, fondo : int, piso : int, u : double, v : double, radioU : double, radioV : double) : Shape   [Static]
+  - dibujarArco(g : Graphics2D, c : ComandoDibujo) : void   [Static]
+  - dibujarBalon(g : Graphics2D, c : ComandoDibujo) : void   [Static]
+  - dibujarTiro(g : Graphics2D, c : ComandoDibujo) : void   [Static]
+  - dibujarJugador(g : Graphics2D, c : ComandoDibujo, tiempo : double) : void   [Static]
+  + dibujarAura(g : Graphics2D, cx : double, cy : double, r : int, tiempo : double) : void   [Static]
+  + crearFlama(cx : double, cy : double, rx : double, ry : double, tiempo : double, fase : double) : Shape   [Static]
+  + dibujarCabeza(g : Graphics2D, x : int, y : int, r : int, colores : Color[], derecha : boolean, borde : Color) : void   [Static]
+  - dibujarPie(g : Graphics2D, c : ComandoDibujo, escala : double) : void   [Static]
+  - dibujarSangre(g : Graphics2D, c : ComandoDibujo) : void   [Static]
+
+======================================================================
+<<interface>> VistaPrincipal
+======================================================================
+ATRIBUTOS
+  (ninguno)
+OPERACIONES
+  + mostrarInicio() : void   [Abstract]
+  + mostrarInstrucciones() : void   [Abstract]
+  + mostrarConfiguracion() : void   [Abstract]
+  + confirmarConfiguracion() : void   [Abstract]
+  + iniciarPartido() : void   [Abstract]
+  + pasoDeJuego(segundos : double) : void   [Abstract]
+  + refrescar() : void   [Abstract]
+  + detenerCiclo() : void   [Abstract]
+
+######################################################################
+RELACIONES (flechas del diagrama)
+######################################################################
+  Arco - - -|> Interactuable   (realización)
+  Arco - - -|> Dibujable   (realización)
+  Balon - - -|> Movible   (realización)
+  Balon - - -|> Dibujable   (realización)
+  Balon - - -|> Pateable   (realización)
+  Balon ----> Jugador   (asociación: -tirador; multiplicidad 1)
+  Balon ----> Balon   (asociación: -senuelos; multiplicidad *)
+  BalonFalso ----|> Balon   (generalización)
+  BalonFalso ----> Balon   (asociación: -original; multiplicidad 1)
+  Camerun ----|> Personaje   (generalización)
+  Cancha - - -|> Dibujable   (realización)
+  Cancha ----> Arco   (asociación: -arcoIzquierdo, -arcoDerecho; multiplicidad 2)
+  CoreaDelSur ----|> Personaje   (generalización)
+  DOPOSoccer - - -|> ControlPartido   (realización)
+  DOPOSoccer ----> DOPOSoccer   (asociación: -instancia; multiplicidad 0..1)
+  DOPOSoccer ----> Partido   (asociación: -partido; multiplicidad 1)
+  DOPOSoccer ----> Estadisticas   (asociación: -estadisticas; multiplicidad *)
+  DOPOSoccer ----> RepositorioPartida   (asociación: -repositorio; multiplicidad 1)
+  DOPOSoccerException ----|> Exception   (generalización)
+  Estadisticas - - -|> Mejorable   (realización)
+  EstadosUnidos ----|> Personaje   (generalización)
+  FormatoArchivoException ----|> DOPOSoccerException   (generalización)
+  Jugador - - -|> Movible   (realización)
+  Jugador - - -|> Dibujable   (realización)
+  Jugador - - -|> Interactuable   (realización)
+  Jugador - - -|> Pateable   (realización)
+  Jugador - - -|> Golpeable   (realización)
+  Jugador ----> Personaje   (asociación: -personaje; multiplicidad 1)
+  Jugador ----> Estadisticas   (asociación: -estadisticas; multiplicidad 1)
+  Jugador ----> Efecto   (asociación: -efecto; multiplicidad 1)
+  Maquina ----|> Jugador   (generalización)
+  Maquina ----> EstrategiaMaquina   (asociación: -estrategia; multiplicidad 1)
+  MaquinaDefensiva - - -|> EstrategiaMaquina   (realización)
+  MaquinaDefensiva ----> MaquinaOfensiva   (asociación: -despeje; multiplicidad 1)
+  MaquinaEquilibrada - - -|> EstrategiaMaquina   (realización)
+  MaquinaEquilibrada ----> MaquinaOfensiva   (asociación: -ataque; multiplicidad 1)
+  MaquinaEquilibrada ----> MaquinaDefensiva   (asociación: -defensa; multiplicidad 1)
+  MaquinaExperta - - -|> EstrategiaMaquina   (realización)
+  MaquinaExperta ----> MaquinaOfensiva   (asociación: -ataque; multiplicidad 1)
+  MaquinaExperta ----> MaquinaDefensiva   (asociación: -defensa; multiplicidad 1)
+  MaquinaOfensiva - - -|> EstrategiaMaquina   (realización)
+  MaquinaTorpe - - -|> EstrategiaMaquina   (realización)
+  Nigeria ----|> Personaje   (generalización)
+  Partido - - -|> ControlPartido   (realización)
+  Partido ----> Cancha   (asociación: -cancha; multiplicidad 1)
+  Partido ----> Balon   (asociación: -balon; multiplicidad 1)
+  Partido ----> Jugador   (asociación: -jugadores; multiplicidad *)
+  Partido (+)---- Partido.ModoJuego   (clase interna)
+  PartidoDAO - - -|> RepositorioPartida   (realización)
+  PartidoDAO ----> PartidoDAO   (asociación: -instancia; multiplicidad 0..1)
+  PartidoPorGoles ----|> Partido   (generalización)
+  PartidoPorTiempo ----|> Partido   (generalización)
+  PersistenciaException ----|> DOPOSoccerException   (generalización)
+  Personaje - - -|> PoderEspecial   (realización)
+  Personaje ----> Pais   (asociación: -pais; multiplicidad 1)
+  ComandoDibujo ----> Forma   (asociación: -forma; multiplicidad 1)
+  ComandoDibujo (+)---- ComandoDibujo.Forma   (clase interna)
+  BotonRedondeado ----|> JButton   (generalización)
+  CicloJuego ----> VistaPrincipal   (asociación: -vista; multiplicidad 1)
+  DOPOSoccerGUI - - -|> VistaPrincipal   (realización)
+  DOPOSoccerGUI ----|> JFrame   (generalización)
+  DOPOSoccerGUI ----> DOPOSoccer   (asociación: -dominio; multiplicidad 1)
+  DOPOSoccerGUI ----> PanelInicio   (asociación: -panelInicio; multiplicidad 1)
+  DOPOSoccerGUI ----> PanelInstrucciones   (asociación: -panelInstrucciones; multiplicidad 1)
+  DOPOSoccerGUI ----> PanelJugadores   (asociación: -panelJugadores; multiplicidad 1)
+  DOPOSoccerGUI ----> PanelConfiguracion   (asociación: -panelConfiguracion; multiplicidad 1)
+  DOPOSoccerGUI ----> PanelCancha   (asociación: -panelCancha; multiplicidad 1)
+  DOPOSoccerGUI ----> CicloJuego   (asociación: -ciclo; multiplicidad 1)
+  DOPOSoccerGUI ----> Musica   (asociación: -musica; multiplicidad 1)
+  DOPOSoccerGUI (+)---- DOPOSoccerGUI.Pantalla   (clase interna)
+  IconoInstruccion ----|> JComponent   (generalización)
+  IconoInstruccion ----> Tipo   (asociación: -tipo; multiplicidad 1)
+  IconoInstruccion (+)---- IconoInstruccion.Tipo   (clase interna)
+  PanelCancha ----|> JPanel   (generalización)
+  PanelCancha ----> DOPOSoccer   (asociación: -dominio; multiplicidad 1)
+  PanelCancha ----> BotonRedondeado   (asociación: -botonPausa; multiplicidad 1)
+  PanelCancha ----> PanelPausa   (asociación: -panelPausa; multiplicidad 1)
+  PanelConfiguracion ----|> PanelDegradado   (generalización)
+  PanelConfiguracion ----> BotonRedondeado   (asociación: -botonSiguiente; multiplicidad 1)
+  PanelConfiguracion ----> VistaPrincipal   (asociación: -vista; multiplicidad 1)
+  PanelConfiguracion (+)---- PanelConfiguracion.Resolucion   (clase interna)
+  PanelDegradado ----|> JPanel   (generalización)
+  PanelInicio ----|> JPanel   (generalización)
+  PanelInicio ----> BotonRedondeado   (asociación: -botonIniciar, -botonInstrucciones; multiplicidad 2)
+  PanelInicio ----> VistaPrincipal   (asociación: -vista; multiplicidad 1)
+  PanelInstrucciones ----|> PanelDegradado   (generalización)
+  PanelInstrucciones ----> BotonRedondeado   (asociación: -botonVolver; multiplicidad 1)
+  PanelInstrucciones ----> VistaPrincipal   (asociación: -vista; multiplicidad 1)
+  PanelJugadores ----|> PanelDegradado   (generalización)
+  PanelJugadores ----> DOPOSoccer   (asociación: -dominio; multiplicidad 1)
+  PanelJugadores ----> BotonRedondeado   (asociación: -botonesMejorar, -botonVolver, -botonIniciar; multiplicidad *)
+  PanelJugadores ----> PanelTarjeta   (asociación: -tarjetas; multiplicidad *)
+  PanelJugadores ----> VistaPrincipal   (asociación: -vista; multiplicidad 1)
+  PanelPausa ----|> JPanel   (generalización)
+  PanelPausa ----> BotonRedondeado   (asociación: -botonContinuar, -botonTerminar, -botonGuardar, -botonAbrir, -botonEstrategia, -botonMenu, -botonMusica; multiplicidad 7)
+  PanelTarjeta ----|> JPanel   (generalización)

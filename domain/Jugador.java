@@ -11,7 +11,7 @@ import dto.EstadoJugador;
  * y Pateable (el rival le puede pegar una patada).
  * El jugador humano lo controla el teclado; la Maquina (subclase) decide sola.
  */
-public class Jugador implements Movible, Dibujable, Interactuable, Pateable {
+public class Jugador implements Movible, Dibujable, Interactuable, Pateable, Golpeable {
 
     /** Radio del cuerpo del jugador. */
     public static final int RADIO = 25;

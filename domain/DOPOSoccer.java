@@ -13,7 +13,7 @@ import java.util.List;
  * Nunca entrega objetos del dominio que se puedan cambiar: entrega DTO (ComandoDibujo,
  * EstadoJugador), copias (Estadisticas) o valores, para que no se salten las reglas del juego.
  */
-public class DOPOSoccer {
+public class DOPOSoccer implements ControlPartido {
 
     /** Precio en puntos de la primera mejora; cada mejora comprada lo sube en esta misma cantidad. */
     public static final int PRECIO_INICIAL = 25;
