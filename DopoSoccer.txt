@@ -1,1 +1,4 @@
-https://github.com/JuanGuarguati/DOPOSoccer
+DOPOSoccer - Proyecto final DOPO 
+Integrantes: Juan David Guarguati, Juan Pablo Suarez Rubiano
+Repositorio: https://github.com/JuanGuarguati/DOPOSoccer
+

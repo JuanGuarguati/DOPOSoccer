@@ -1,0 +1,872 @@
+DOPOSoccer - LISTA DE ATRIBUTOS Y MÉTODOS - Versión dos
+Sacada directamente del código (cada clase completa). Debe coincidir con el diagrama de clases.
+- = privado, + = público, # = protegido, ~ = de paquete. [Static] = marcar Static. [Abstract] = marcar Abstract.
+A los constructores déjenles vacío el tipo de retorno (sin ': void').
+Los parámetros de main(args) y las clases anónimas (listeners) no van en el diagrama.
+
+############################################################
+PAQUETE domain
+############################################################
+
+============================================================
+<<enumeration>> Accion
+============================================================
+  Valores: QUEDARSE, MOVER_IZQUIERDA, MOVER_DERECHA, SALTAR, PATEAR
+ATRIBUTOS
+  (ninguno)
+METODOS
+  - Accion()
+
+============================================================
+Arco
+============================================================
+ATRIBUTOS
+  + ANCHO : int [Static]
+  + ALTO : int [Static]
+  - x : int
+  - y : int
+  - ancho : int
+  - alto : int
+  - esIzquierdo : boolean
+METODOS
+  + Arco(x : int, y : int, esIzquierdo : boolean)
+  + esIzquierdo() : boolean
+  + getY() : int
+  + getX() : int
+  + esGol(balon : Balon) : boolean
+  + chocaConTravesano(balon : Balon) : boolean
+  + getAncho() : int
+  + getAlto() : int
+
+============================================================
+Balon
+  (implementa Movible)
+============================================================
+ATRIBUTOS
+  + RADIO : int [Static]
+  + REBOTE_PISO : double [Static]
+  + REBOTE_PARED : double [Static]
+  + ROCE : double [Static]
+  - x : double
+  - y : double
+  - velocidadX : double
+  - velocidadY : double
+  - radio : int
+METODOS
+  + Balon(x : double, y : double)
+  + getRadio() : int
+  + getY() : double
+  + getX() : double
+  + aplicarGravedad(gravedad : double) : void
+  + rebotar(cancha : Cancha) : void
+  + mover(segundos : double, cancha : Cancha) : void
+  + recibirPatada(fuerzaX : double, fuerzaY : double) : void
+  + reiniciar(x : double, y : double) : void
+  + getVelocidad() : double
+  + getVelocidadX() : double
+  + getVelocidadY() : double
+
+============================================================
+Camerun
+  (hereda de Personaje)
+============================================================
+ATRIBUTOS
+  (ninguno)
+METODOS
+  + Camerun()
+  + tiroDePoder(balon : Balon, haciaDerecha : boolean) : void
+  + aplicarEfecto(rival : Jugador) : void
+
+============================================================
+Cancha
+============================================================
+ATRIBUTOS
+  + ALTO_PISO : int [Static]
+  + GRAVEDAD : double [Static]
+  - ancho : int
+  - alto : int
+  - nivelPiso : int
+  - gravedad : double
+  - arcoIzquierdo : Arco
+  - arcoDerecho : Arco
+METODOS
+  + Cancha(ancho : int, alto : int)
+  + getAncho() : int
+  + getAlto() : int
+  + getGravedad() : double
+  + getNivelPiso() : int
+  + getArcoIzquierdo() : Arco
+  + getArcoDerecho() : Arco
+  + estaDentro(x : double, y : double) : boolean
+
+============================================================
+CoreaDelSur
+  (hereda de Personaje)
+============================================================
+ATRIBUTOS
+  (ninguno)
+METODOS
+  + CoreaDelSur()
+  + tiroDePoder(balon : Balon, haciaDerecha : boolean) : void
+  + aplicarEfecto(rival : Jugador) : void
+
+============================================================
+DOPOSoccer
+============================================================
+ATRIBUTOS
+  + PRECIO_INICIAL : int [Static]
+  - instancia : DOPOSoccer [Static]
+  - partido : Partido
+  - puntos : int[]
+  - estadisticas : Estadisticas[]
+  - dao : PartidoDAO
+METODOS
+  - DOPOSoccer()
+  + getInstance() : DOPOSoccer [Static]
+  + reiniciar() : void
+  + iniciarPartido(pais1 : Pais, pais2 : Pais, modo : ModoJuego, valor : int, perfil : PerfilMaquina) : void
+  + iniciarPartido(pais1 : Pais, pais2 : Pais, modo : ModoJuego, valor : int) : void
+  - guardarPuntos() : void
+  - prepararJugadores(nuevo : Partido) : void
+  - validarPartido() : void
+  - validarExistePartido() : void
+  + guardar(archivo : File) : void
+  + abrir(archivo : File) : void
+  - validarNumero(numero : int) : void
+  + getJugador(numero : int) : Jugador
+  + estaTerminado() : boolean
+  + getPrecioMejora(numero : int) : int
+  + actualizar(segundos : double) : void
+  + moverJugador(numero : int, direccion : Direccion) : void
+  + saltarJugador(numero : int) : void
+  + patearJugador(numero : int) : void
+  + pausar() : void
+  + terminar() : void
+  + estaPausado() : boolean
+  + getGanador() : Jugador
+  + getBalon() : Balon
+  + getCancha() : Cancha
+  + getTextoTiempo() : String
+  + getEstadisticas(numero : int) : Estadisticas
+  + getPuntos(numero : int) : int
+  + cambiarEstrategia(perfil : PerfilMaquina) : void
+  + esContraMaquina() : boolean
+  + getPerfilMaquina() : PerfilMaquina
+  + mejorarEstadistica(numero : int, estadistica : Estadistica) : void
+  + hayPartido() : boolean
+  ~ getPartido() : Partido
+  ~ restaurar(puntosGuardados : int[], estadisticasGuardadas : Estadisticas[], guardado : Partido) : void
+
+============================================================
+DOPOSoccerException
+  (hereda de Exception)
+============================================================
+ATRIBUTOS
+  + JUGADOR_INVALIDO : String [Static]
+  + PARTIDO_TERMINADO : String [Static]
+  + PAIS_INVALIDO : String [Static]
+  + PERFIL_INVALIDO : String [Static]
+  + NO_HAY_MAQUINA : String [Static]
+  + VALOR_INVALIDO : String [Static]
+  + DIRECCION_INVALIDA : String [Static]
+  + PUNTOS_INSUFICIENTES : String [Static]
+  + PARTIDO_EN_CURSO : String [Static]
+  + ESTADISTICA_MAXIMA : String [Static]
+  + ESTADISTICA_INVALIDA : String [Static]
+  + ARCHIVO_NO_GUARDADO : String [Static]
+  + ARCHIVO_NO_ABIERTO : String [Static]
+  + ARCHIVO_INVALIDO : String [Static]
+METODOS
+  + DOPOSoccerException(message : String)
+
+============================================================
+<<enumeration>> Direccion
+============================================================
+  Valores: IZQUIERDA, DERECHA
+ATRIBUTOS
+  (ninguno)
+METODOS
+  - Direccion()
+
+============================================================
+<<enumeration>> Estadistica
+============================================================
+  Valores: SPEED, KICK, JUMP, SURVIVAL
+ATRIBUTOS
+  - nombre : String
+METODOS
+  - Estadistica(nombre : String)
+  + toString() : String
+  + getNombre() : String
+
+============================================================
+Estadisticas
+============================================================
+ATRIBUTOS
+  + MINIMO : int [Static]
+  + MAXIMO : int [Static]
+  + VELOCIDAD_BASE : double [Static]
+  + SALTO_BASE : double [Static]
+  - speed : int
+  - kick : int
+  - jump : int
+  - survival : int
+METODOS
+  + Estadisticas()
+  + Estadisticas(speed : int, kick : int, jump : int, survival : int)
+  + getVelocidad() : double
+  + getMejorasCompradas() : int
+  + mejorar(estadistica : Estadistica) : void
+  + getVidaMax() : double
+  + getFuerzaSalto() : double
+  + getMultiplicadorKick() : double
+  + getValor(estadistica : Estadistica) : int
+  - subir(valor : int) : int
+  + getSpeed() : int
+  + getKick() : int
+  + getJump() : int
+  + getSurvival() : int
+
+============================================================
+EstadosUnidos
+  (hereda de Personaje)
+============================================================
+ATRIBUTOS
+  (ninguno)
+METODOS
+  + EstadosUnidos()
+  + tiroDePoder(balon : Balon, haciaDerecha : boolean) : void
+  + aplicarEfecto(rival : Jugador) : void
+
+============================================================
+<<interface>> EstrategiaMaquina
+============================================================
+ATRIBUTOS
+  (ninguno)
+METODOS
+  + getPerfil() : PerfilMaquina
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion
+
+============================================================
+Jugador
+  (implementa Movible)
+============================================================
+ATRIBUTOS
+  + RADIO : int [Static]
+  + ALCANCE_PIE : double [Static]
+  + DANIO_PATADA : double [Static]
+  + TIEMPO_ATURDIDO : double [Static]
+  + FUERZA_PATADA_X : double [Static]
+  + FUERZA_PATADA_Y : double [Static]
+  + DURACION_PATADA : double [Static]
+  + DURACION_GOLPE : double [Static]
+  - numero : int
+  - personaje : Personaje
+  - estadisticas : Estadisticas
+  - x : double
+  - y : double
+  - velocidadY : double
+  - enSuelo : boolean
+  - mirandoDerecha : boolean
+  - goles : int
+  - vida : double
+  - aturdido : boolean
+  - tiempoAturdido : double
+  - puntos : int
+  - tiempoPatada : double
+  - tiempoGolpe : double
+METODOS
+  + Jugador(numero : int, personaje : Personaje, x : double, y : double)
+  + getRadio() : int
+  + getY() : double
+  + getX() : double
+  + mover(segundos : double, cancha : Cancha) : void
+  + reiniciar(x : double, y : double) : void
+  + getVelocidad() : double
+  + getPais() : Pais
+  + getVidaMax() : double
+  + tocaBalon(balon : Balon) : boolean
+  + alcanzaRival(rival : Jugador) : boolean
+  + recibirDanio(danio : double) : void
+  + moverIzquierda() : void
+  + moverDerecha() : void
+  + saltar() : void
+  + patear(balon : Balon, rival : Jugador) : void
+  + anotarGol() : void
+  + sumarPuntos(cantidad : int) : void
+  + jugar(partido : Partido) : void
+  + esMaquina() : boolean
+  + desplazar(dx : double, cancha : Cancha) : void
+  + setEstadisticas(estadisticas : Estadisticas) : void
+  + setGoles(goles : int) : void
+  + getNumero() : int
+  + getGoles() : int
+  + getVida() : double
+  + getPersonaje() : Personaje
+  + getEstadisticas() : Estadisticas
+  + getPuntos() : int
+  + estaAturdido() : boolean
+  + estaEnSuelo() : boolean
+  + estaMirandoDerecha() : boolean
+  + estaPateando() : boolean
+  + getTiempoPatada() : double
+  + estaGolpeado() : boolean
+  + getTiempoGolpe() : double
+
+============================================================
+Log
+============================================================
+ATRIBUTOS
+  + NOMBRE : String [Static]
+METODOS
+  + Log()
+  + record(e : Exception) : void [Static]
+
+============================================================
+Maquina
+  (hereda de Jugador)
+============================================================
+ATRIBUTOS
+  + TOLERANCIA : double [Static]
+  - estrategia : EstrategiaMaquina
+METODOS
+  + Maquina(numero : int, personaje : Personaje, x : double, y : double, estrategia : EstrategiaMaquina)
+  + setEstrategia(estrategia : EstrategiaMaquina) : void
+  + getEstrategia() : EstrategiaMaquina
+  + jugar(partido : Partido) : void
+  + esMaquina() : boolean
+  + ejecutar(accion : Accion, partido : Partido) : void
+  + getSentidoAtaque() : int
+  + accionHacia(objetivoX : double) : Accion
+  + miraHaciaAtaque() : boolean
+  + accionHaciaAtaque() : Accion
+
+============================================================
+MaquinaDefensiva
+  (implementa EstrategiaMaquina)
+============================================================
+ATRIBUTOS
+  + DISTANCIA_ARCO : double [Static]
+  - despeje : MaquinaOfensiva
+METODOS
+  + MaquinaDefensiva()
+  + getPerfil() : PerfilMaquina
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion
+  + estaEnSuMitad(maquina : Maquina, x : double, ancho : int) : boolean
+  + posicionDefensa(maquina : Maquina, ancho : int) : double
+
+============================================================
+MaquinaEquilibrada
+  (implementa EstrategiaMaquina)
+============================================================
+ATRIBUTOS
+  - ataque : MaquinaOfensiva
+  - defensa : MaquinaDefensiva
+METODOS
+  + MaquinaEquilibrada()
+  + getPerfil() : PerfilMaquina
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion
+  + vaGanando(maquina : Maquina, partido : Partido) : boolean
+
+============================================================
+MaquinaExperta
+  (implementa EstrategiaMaquina)
+============================================================
+ATRIBUTOS
+  + BALON_LEJOS : double [Static]
+  + VELOCIDAD_PELIGRO : double [Static]
+  - ataque : MaquinaOfensiva
+  - defensa : MaquinaDefensiva
+METODOS
+  + MaquinaExperta()
+  + getPerfil() : PerfilMaquina
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion
+
+============================================================
+MaquinaOfensiva
+  (implementa EstrategiaMaquina)
+============================================================
+ATRIBUTOS
+  + ALTURA_CABEZAZO : double [Static]
+  + DISTANCIA_CABEZAZO : double [Static]
+METODOS
+  + MaquinaOfensiva()
+  + getPerfil() : PerfilMaquina
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion
+  + debeCabecear(maquina : Maquina, balon : Balon) : boolean
+
+============================================================
+MaquinaTorpe
+  (implementa EstrategiaMaquina)
+============================================================
+ATRIBUTOS
+  - azar : Random
+METODOS
+  + MaquinaTorpe()
+  + MaquinaTorpe(semilla : long)
+  + getPerfil() : PerfilMaquina
+  + decidirAccion(maquina : Maquina, partido : Partido) : Accion
+
+============================================================
+<<interface>> Movible
+============================================================
+ATRIBUTOS
+  (ninguno)
+METODOS
+  + getRadio() : int
+  + getY() : double
+  + getX() : double
+  + mover(segundos : double, cancha : Cancha) : void
+  + reiniciar(x : double, y : double) : void
+  + getVelocidad() : double
+
+============================================================
+Nigeria
+  (hereda de Personaje)
+============================================================
+ATRIBUTOS
+  (ninguno)
+METODOS
+  + Nigeria()
+  + tiroDePoder(balon : Balon, haciaDerecha : boolean) : void
+  + aplicarEfecto(rival : Jugador) : void
+
+============================================================
+<<enumeration>> Pais
+============================================================
+  Valores: COREA_DEL_SUR, CAMERUN, NIGERIA, ESTADOS_UNIDOS
+ATRIBUTOS
+  - nombre : String
+METODOS
+  - Pais(nombre : String)
+  + toString() : String
+  + desdeTexto(texto : String) : Pais [Static]
+  + getNombre() : String
+
+============================================================
+[Abstract] Partido
+============================================================
+ATRIBUTOS
+  + ANCHO_CANCHA : int [Static]
+  + ALTO_CANCHA : int [Static]
+  + PUNTOS_GANADOR : int [Static]
+  + PUNTOS_PERDEDOR : int [Static]
+  + DISTANCIA_INICIAL : double [Static]
+  + ALTURA_SAQUE : double [Static]
+  - cancha : Cancha
+  - balon : Balon
+  - jugadores : Jugador[]
+  - tiempoJugado : double
+  - pausado : boolean
+  - terminado : boolean
+METODOS
+  + Partido(pais1 : Pais, pais2 : Pais)
+  + ponerMaquina(estrategia : EstrategiaMaquina) : void
+  + getMaquina() : Maquina
+  + getJugador(numero : int) : Jugador
+  + estaTerminado() : boolean
+  + actualizar(segundos : double) : void
+  + moverJugador(numero : int, direccion : Direccion) : void
+  + saltarJugador(numero : int) : void
+  + patearJugador(numero : int) : void
+  + pausar() : void
+  + terminar() : void
+  + estaPausado() : boolean
+  + getGanador() : Jugador
+  + getBalon() : Balon
+  + getCancha() : Cancha
+  + getTextoTiempo() : String [Abstract]
+  + getMovibles() : List<Movible>
+  - cabecear(j : Jugador) : void
+  - separarJugadores() : void
+  + verificarGol() : void
+  + hayGanador() : boolean [Abstract]
+  - finalizar() : void
+  + reiniciarPosiciones() : void
+  + getModo() : ModoJuego [Abstract]
+  + getValor() : int [Abstract]
+  + getRival(jugador : Jugador) : Jugador
+  + getTiempoJugado() : double
+  # formato(segundos : double) : String
+  + restaurar(goles1 : int, goles2 : int, tiempo : double) : void
+
+============================================================
+<<enumeration>> Partido.ModoJuego  (clase interna)
+============================================================
+  Valores: POR_TIEMPO, POR_GOLES
+ATRIBUTOS
+  - nombre : String
+METODOS
+  - ModoJuego(nombre : String)
+  + toString() : String
+  + crearPartido(pais1 : Pais, pais2 : Pais, valor : int) : Partido
+  + desdeTexto(texto : String) : ModoJuego [Static]
+  + getNombre() : String
+
+============================================================
+PartidoDAO
+============================================================
+ATRIBUTOS
+  + EXTENSION : String [Static]
+  + ENCABEZADO : String [Static]
+  + SIN_MAQUINA : String [Static]
+METODOS
+  + PartidoDAO()
+  - decimal(datos : Map<String,String>, clave : String) : double
+  + guardar(juego : DOPOSoccer, archivo : File) : void
+  + abrir(juego : DOPOSoccer, archivo : File) : void
+  - estadisticas(datos : Map<String,String>, clave : String) : Estadisticas
+  - conExtension(archivo : File) : File
+  - aTexto(e : Estadisticas) : String
+  - leer(archivo : File) : Map<String,String>
+  - entero(datos : Map<String,String>, clave : String) : int
+  - valor(datos : Map<String,String>, clave : String) : String
+
+============================================================
+PartidoPorGoles
+  (hereda de Partido)
+============================================================
+ATRIBUTOS
+  - golesParaGanar : int
+METODOS
+  + PartidoPorGoles(pais1 : Pais, pais2 : Pais, goles : int)
+  + getTextoTiempo() : String
+  + hayGanador() : boolean
+  + getModo() : ModoJuego
+  + getValor() : int
+  + getGolesParaGanar() : int
+
+============================================================
+PartidoPorTiempo
+  (hereda de Partido)
+============================================================
+ATRIBUTOS
+  - duracion : double
+  - muerteSubita : boolean
+METODOS
+  + PartidoPorTiempo(pais1 : Pais, pais2 : Pais, minutos : int)
+  + getTextoTiempo() : String
+  + hayGanador() : boolean
+  + getModo() : ModoJuego
+  + getValor() : int
+  + getTiempoRestante() : double
+  + estaEnMuerteSubita() : boolean
+
+============================================================
+<<enumeration>> PerfilMaquina
+============================================================
+  Valores: TORPE, OFENSIVA, DEFENSIVA, EXPERTA, EQUILIBRADA
+ATRIBUTOS
+  - nombre : String
+METODOS
+  - PerfilMaquina(nombre : String)
+  + toString() : String
+  + crearEstrategia() : EstrategiaMaquina
+  + desdeTexto(texto : String) : PerfilMaquina [Static]
+  + getNombre() : String
+
+============================================================
+[Abstract] Personaje
+============================================================
+ATRIBUTOS
+  - pais : Pais
+  - danioTiro : int
+  - duracionEfecto : double
+METODOS
+  + Personaje(pais : Pais, danioTiro : int, duracionEfecto : double)
+  + tiroDePoder(balon : Balon, haciaDerecha : boolean) : void [Abstract]
+  + aplicarEfecto(rival : Jugador) : void [Abstract]
+  + crear(pais : Pais) : Personaje [Static]
+  + getPais() : Pais
+  + getDanioTiro() : int
+  + getDuracionEfecto() : double
+
+############################################################
+PAQUETE presentation
+############################################################
+
+============================================================
+BotonRedondeado
+  (hereda de JButton)
+============================================================
+ATRIBUTOS
+  - colorBase : Color
+  - colorHover : Color
+  - encima : boolean
+METODOS
+  + BotonRedondeado(texto : String, colorBase : Color, colorHover : Color)
+  - prepareController() : void
+  # paintComponent(g : Graphics) : void
+  + estaEncima() : boolean
+
+============================================================
+DOPOSoccerGUI
+  (hereda de JFrame)
+============================================================
+ATRIBUTOS
+  + TAMANO_MENU : Dimension [Static]
+  + MILISEGUNDOS : int [Static]
+  - dominio : DOPOSoccer
+  - tarjetas : CardLayout
+  - principal : JPanel
+  - panelInicio : PanelInicio
+  - panelJugadores : PanelJugadores
+  - panelConfiguracion : PanelConfiguracion
+  - panelCancha : PanelCancha
+  - timer : Timer
+  - teclasPresionadas : Set<Integer>
+  - itemNuevo : JMenuItem
+  - itemAbrir : JMenuItem
+  - itemGuardar : JMenuItem
+  - itemEstrategia : JMenuItem
+  - selectorArchivo : JFileChooser
+  - itemPausa : JMenuItem
+  - itemTerminar : JMenuItem
+  - itemSalir : JMenuItem
+METODOS
+  - DOPOSoccerGUI()
+  + main(args : String[]) : void [Static]
+  - prepareController() : void
+  - prepareView() : void
+  - prepareViewMenu() : void
+  - prepareControllerPausa() : void
+  - mostrarJugadores() : void
+  - mostrarCancha(enPausa : boolean) : void
+  - pausaAction() : void
+  - terminarAction() : void
+  - finAction() : void
+  - nuevoAction() : void
+  - siguienteAction() : void
+  - iniciarAction() : void
+  - teclaPresionadaAction(codigo : int) : void
+  - cicloAction() : void
+  - volverMenuAction() : void
+  - sonidoAction() : void
+  - guardarAction() : void
+  - abrirAction() : void
+  - cambiarEstrategiaAction() : void
+  - salirAction() : void
+
+============================================================
+<<enumeration>> DOPOSoccerGUI.Pantalla  (clase interna)
+============================================================
+  Valores: INICIO, CONFIGURACION, JUGADORES, CANCHA
+ATRIBUTOS
+  (ninguno)
+METODOS
+  - Pantalla()
+
+============================================================
+Estilo
+============================================================
+ATRIBUTOS
+  + FONDO_ARRIBA : Color [Static]
+  + FONDO_ABAJO : Color [Static]
+  + PRIMARIO : Color [Static]
+  + PRIMARIO_HOVER : Color [Static]
+  + SECUNDARIO : Color [Static]
+  + SECUNDARIO_HOVER : Color [Static]
+  + PELIGRO : Color [Static]
+  + PELIGRO_HOVER : Color [Static]
+  + DESACTIVADO : Color [Static]
+  + ACENTO : Color [Static]
+  + TEXTO_CLARO : Color [Static]
+  + TEXTO_OSCURO : Color [Static]
+  + TARJETA : Color [Static]
+  + CAMPO : Color [Static]
+  + FONDO_PAUSA : Color [Static]
+  + CIELO : Color [Static]
+  + CIELO_ABAJO : Color [Static]
+  + PASTO : Color [Static]
+  + PASTO_OSCURO : Color [Static]
+  + COLOR_J1 : Color [Static]
+  + COLOR_J2 : Color [Static]
+  + COLORES_ATURDIDO : Color[] [Static]
+  + VIDA : Color [Static]
+  + SANGRE : Color [Static]
+  + FAMILIA_TITULO : String [Static]
+  + FAMILIA_TEXTO : String [Static]
+  + TITULO_GRANDE : Font [Static]
+  + TITULO : Font [Static]
+  + SUBTITULO : Font [Static]
+  + BOTON : Font [Static]
+  + TEXTO : Font [Static]
+  + TEXTO_PEQUENO : Font [Static]
+  + REDONDEO : int [Static]
+METODOS
+  - Estilo()
+  + crearBotonSecundario(texto : String) : BotonRedondeado [Static]
+  + crearTitulo(texto : String) : JLabel [Static]
+  + crearBoton(texto : String) : BotonRedondeado [Static]
+  + coloresPais(pais : Pais) : Color[] [Static]
+  + estilizarCombo(combo : JComboBox<?>) : void [Static]
+  + estilizarCampo(campo : JTextField) : void [Static]
+  + crearEtiqueta(texto : String) : JLabel [Static]
+  + pintarFondo(g : Graphics, ancho : int, alto : int) : void [Static]
+  + bordeCampo(color : Color) : Border [Static]
+  - agregarHover(origen : Component, destino : JComponent) : void [Static]
+  - elegirFamilia(familias : String[]) : String [Static]
+  + crearBotonPeligro(texto : String) : BotonRedondeado [Static]
+
+============================================================
+PanelCancha
+  (hereda de JPanel)
+============================================================
+ATRIBUTOS
+  + PIE_ANCHO : int [Static]
+  + PIE_ALTO : int [Static]
+  + GOTAS : int [Static]
+  - dominio : DOPOSoccer
+  - botonPausa : BotonRedondeado
+  - panelPausa : PanelPausa
+METODOS
+  + PanelCancha(dominio : DOPOSoccer)
+  # paintComponent(g : Graphics) : void
+  - prepareView() : void
+  - dibujarCancha(g : Graphics2D, cancha : Cancha) : void
+  + getPanelPausa() : PanelPausa
+  + getBotonPausa() : JButton
+  + mostrarPausa(visible : boolean) : void
+  - dibujarBalon(g : Graphics2D, balon : Balon) : void
+  - dibujarJugador(g : Graphics2D, j : Jugador, color : Color) : void
+  - dibujarEstado(g : Graphics2D, cancha : Cancha) : void
+  - dibujarPie(g : Graphics2D, j : Jugador) : void
+  - dibujarCabeza(g : Graphics2D, x : int, y : int, r : int, colores : Color[], borde : Color, derecha : boolean) : void
+  - dibujarSangre(g : Graphics2D, j : Jugador) : void
+  - dibujarInfoJugador(g : Graphics2D, j : Jugador, x : int, color : Color) : void
+  - dibujarBarra(g : Graphics2D, x : int, y : int, ancho : int, alto : int, fraccion : double, color : Color) : void
+
+============================================================
+PanelConfiguracion
+  (hereda de JPanel)
+============================================================
+ATRIBUTOS
+  - comboModalidad : JComboBox<Modalidad>
+  - comboPerfil : JComboBox<PerfilMaquina>
+  - comboResolucion : JComboBox<Resolucion>
+  - comboModo : JComboBox<ModoJuego>
+  - textoValor : JTextField
+  - botonSiguiente : BotonRedondeado
+METODOS
+  + PanelConfiguracion()
+  - prepareController() : void
+  # paintComponent(g : Graphics) : void
+  - prepareView() : void
+  - comboModalidadAction() : void
+  + getBotonSiguiente() : JButton
+  + getValor() : String
+  + esContraMaquina() : boolean
+  + getPerfil() : PerfilMaquina
+  + getModo() : ModoJuego
+  + getResolucion() : Dimension
+
+============================================================
+<<enumeration>> PanelConfiguracion.Modalidad  (clase interna)
+============================================================
+  Valores: JUGADOR_VS_JUGADOR, JUGADOR_VS_MAQUINA
+ATRIBUTOS
+  - nombre : String
+METODOS
+  - Modalidad(nombre : String)
+  + toString() : String
+
+============================================================
+<<enumeration>> PanelConfiguracion.Resolucion  (clase interna)
+============================================================
+  Valores: HD, HD_PLUS, FULL_HD
+ATRIBUTOS
+  - ancho : int
+  - alto : int
+METODOS
+  - Resolucion(ancho : int, alto : int)
+  + toString() : String
+  + getDimension() : Dimension
+
+============================================================
+PanelInicio
+  (hereda de JPanel)
+============================================================
+ATRIBUTOS
+  - botonIniciar : BotonRedondeado
+METODOS
+  + PanelInicio()
+  # paintComponent(g : Graphics) : void
+  - prepareView() : void
+  - dibujarPersonaje(g : Graphics2D, x : int, y : int, r : int, colores : Color[], color : Color, derecha : boolean, etiqueta : String) : void
+  - dibujarBanderaCorea(g : Graphics2D, x : int, y : int, w : int, h : int) : void
+  - dibujarBanderaCamerun(g : Graphics2D, x : int, y : int, w : int, h : int) : void
+  + getBotonIniciar() : JButton
+
+============================================================
+PanelJugadores
+  (hereda de JPanel)
+============================================================
+ATRIBUTOS
+  + CONTROLES_J1 : String [Static]
+  + CONTROLES_J2 : String [Static]
+  - dominio : DOPOSoccer
+  - comboPais1 : JComboBox<Pais>
+  - comboPais2 : JComboBox<Pais>
+  - etiquetasPuntos : JLabel[]
+  - etiquetasPrecio : JLabel[]
+  - etiquetasValor : JLabel[][]
+  - botonesMejorar : BotonRedondeado[][]
+  - tarjetas : PanelTarjeta[]
+  - etiquetaControles2 : JLabel
+  - botonVolver : BotonRedondeado
+  - botonIniciar : BotonRedondeado
+METODOS
+  + PanelJugadores(dominio : DOPOSoccer)
+  - prepareController() : void
+  # paintComponent(g : Graphics) : void
+  - prepareView() : void
+  - crearGrupo(numero : int, comboPais : JComboBox<Pais>, color : Color, controles : JLabel) : PanelTarjeta
+  - mejorarAction(numero : int, estadistica : Estadistica) : void
+  + getBotonIniciar() : JButton
+  + getBotonVolver() : JButton
+  + actualizar() : void
+  + setContraMaquina(contraMaquina : boolean, perfil : PerfilMaquina) : void
+  + getPais1() : Pais
+  + getPais2() : Pais
+
+============================================================
+PanelPausa
+  (hereda de JPanel)
+============================================================
+ATRIBUTOS
+  - botonContinuar : BotonRedondeado
+  - botonTerminar : BotonRedondeado
+  - botonGuardar : BotonRedondeado
+  - botonAbrir : BotonRedondeado
+  - botonEstrategia : BotonRedondeado
+  - botonMenu : BotonRedondeado
+  - botonSonido : BotonRedondeado
+  - botonMusica : BotonRedondeado
+METODOS
+  + PanelPausa()
+  # paintComponent(g : Graphics) : void
+  - prepareView() : void
+  + getBotonAbrir() : JButton
+  + getBotonGuardar() : JButton
+  + getBotonEstrategia() : JButton
+  + getBotonContinuar() : JButton
+  + getBotonTerminar() : JButton
+  + getBotonMenu() : JButton
+  + getBotonSonido() : JButton
+  + getBotonMusica() : JButton
+  + setContraMaquina(contraMaquina : boolean) : void
+  - prepararBoton(boton : BotonRedondeado) : BotonRedondeado
+
+============================================================
+PanelTarjeta
+  (hereda de JPanel)
+============================================================
+ATRIBUTOS
+  - titulo : String
+  - color : Color
+METODOS
+  + PanelTarjeta(titulo : String, color : Color, layout : LayoutManager)
+  # paintComponent(g : Graphics) : void
+  + setTitulo(titulo : String) : void
+  + getTitulo() : String
+
